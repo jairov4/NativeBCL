@@ -33,22 +33,12 @@ namespace System
 		return value ^ (value << 8);
 	}
 
-	Boolean Byte::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const Byte&>(obj);
-		return value == b.value;
-	}
 
 	Boolean Byte::Equals(const Byte& obj) const
 	{
 		return value == obj.value;
 	}
 
-	Int32 Byte::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const Byte&>(obj);
-		return value - b.value;
-	}
 
 	Int32 Byte::CompareTo(const Byte& obj) const
 	{

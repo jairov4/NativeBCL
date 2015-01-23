@@ -34,6 +34,10 @@ int main(int argc, char** argv)
 	listOfCO.Add(new_ref<SimpleTestClass>());
 	listOfCO.Add(new_ref<SimpleTestClass>());
 
+	auto i1 = sizeof(Int64);
+	auto i2 = sizeof(Int32);
+	auto i3 = sizeof(Char);
+	
 	for (auto& item : listOfCO)
 	{
 		

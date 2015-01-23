@@ -33,23 +33,11 @@ namespace System
 		return value | (value << 16);
 	}
 
-	Boolean UInt16::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const UInt16&>(obj);
-		return value == b.value;
-	}
-
 	Boolean UInt16::Equals(const UInt16& obj) const
 	{
 		return value == obj.value;
 	}
-
-	Int32 UInt16::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const UInt16&>(obj);
-		return value - b.value;
-	}
-
+	
 	Int32 UInt16::CompareTo(const UInt16& obj) const
 	{
 		return value - obj.value;

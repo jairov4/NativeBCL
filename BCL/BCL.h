@@ -7,19 +7,17 @@
 #include <unordered_map>
 
 namespace System
-{
-	class Object;
-	class Int16;
-	class UInt16;
-	class Int32;
-	class UInt32;
-	class Int64;
-	class UInt64;
-	class SByte;
-	class Byte;
+{	
+	struct Int16;
+	struct UInt16;
+	struct Int32;
+	struct UInt32;
+	struct Int64;
+	struct UInt64;
+	struct SByte;
+	struct Byte;
+	struct Boolean;
 	class String;
-	class String;
-	class Boolean;
 	class Exception;
 
 
@@ -29,7 +27,7 @@ namespace System
 	template<typename T, typename... TArgs>
 	ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
 
-	class Object
+	struct Object
 	{
 	public:
 		virtual String ToString() const;
@@ -56,7 +54,7 @@ namespace System
 		Boolean operator==(const String& b) const;
 	};
 
-	class SByte final : public Object
+	struct SByte final
 	{
 	public:
 		typedef std::int8_t sbyte;
@@ -72,17 +70,18 @@ namespace System
 		SByte(const SByte& copy);
 
 		operator sbyte() const;
+		SByte& operator=(sbyte v);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const SByte& obj) const;
 		Boolean Equals(const SByte& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Byte final : public Object
+	struct Byte final
 	{
 	public:
 		typedef std::uint8_t byte;
@@ -98,17 +97,18 @@ namespace System
 		Byte(const Byte& copy);
 
 		operator byte() const;
+		Byte& operator=(byte v);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Byte& obj) const;
 		Boolean Equals(const Byte& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Int16 final : public Object
+	struct Int16 final
 	{
 	public:
 		typedef std::int16_t int16;
@@ -124,17 +124,18 @@ namespace System
 		Int16(const Int16& copy);
 
 		operator int16() const;
+		Int16& operator=(int16 v);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int16& obj) const;
 		Boolean Equals(const Int16& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class UInt16 final : public Object
+	struct UInt16 final
 	{
 	public:
 		typedef std::uint16_t uint16;
@@ -150,17 +151,18 @@ namespace System
 		UInt16(const UInt16& copy);
 
 		operator uint16() const;
+		UInt16& operator=(uint16 v);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt16& obj) const;
 		Boolean Equals(const UInt16& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Int32 final : public Object
+	struct Int32 final
 	{
 	public:
 		typedef std::int32_t int32;
@@ -182,12 +184,12 @@ namespace System
 		Int32 CompareTo(const Int32& obj) const;
 		Boolean Equals(const Int32& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class UInt32 final : public Object
+	struct UInt32 final
 	{
 	public:
 		typedef std::uint32_t uint32;
@@ -202,17 +204,18 @@ namespace System
 		UInt32(const UInt32& copy);
 
 		operator uint32() const;
+		UInt32& operator=(uint32 val);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt32& obj) const;
 		Boolean Equals(const UInt32& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Int64 final : public Object
+	struct Int64 final
 	{
 	public:
 		typedef std::int64_t int64;
@@ -228,17 +231,18 @@ namespace System
 		Int64(const Int64& copy);
 
 		operator int64() const;
+		Int64& operator=(int64 val);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int64& obj) const;
 		Boolean Equals(const Int64& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class UInt64 final : public Object
+	struct UInt64 final
 	{
 	public:
 		typedef std::uint64_t uint64;
@@ -254,46 +258,53 @@ namespace System
 		UInt64(const UInt64& copy);
 
 		operator uint64() const;
+		UInt64& operator=(uint64 val);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt64& obj) const;
 		Boolean Equals(const UInt64& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Char final : public Object
+	struct Char final
 	{
+	public:
+	private:
 		char16_t value;
 	public:
 		Char();
 		Char(char16_t value);
 
 		operator char16_t() const;
+		Char& operator=(char16_t val);
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Float final : public Object
+	struct Float final
 	{
+	private:
 		float value;
 	public:
 		Float();
 		Float(float value);
 
 		operator float() const;
+		Float& operator=(float val);
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Double final : public Object
+	struct Double final
 	{
+	private:
 		double value;
 	public:
 		Double();
@@ -301,14 +312,16 @@ namespace System
 		Double(const double& value);
 
 		operator double() const;
+		Double& operator=(double val);
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Boolean final : public Object
+	struct Boolean final
 	{
+	private:
 		bool value;
 	public:
 		Boolean();
@@ -316,17 +329,18 @@ namespace System
 		Boolean(const Boolean& copy);
 
 		operator bool() const;
+		Boolean& operator=(bool val);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Boolean& obj) const;
 		Boolean Equals(const Boolean& obj) const;
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
-	class Decimal final : public Object
+	struct Decimal final
 	{
 	public:
 		static const Decimal One;
@@ -356,9 +370,9 @@ namespace System
 
 		static Decimal Add(const Decimal& a, const Decimal& b);
 
-		String ToString() const override;
-		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		String ToString() const;
+		Int32 GetHashCode() const;
+		Boolean Equals(const Object& obj) const;
 	};
 
 	class DateTime final : public Object
@@ -890,5 +904,58 @@ namespace System
 			}
 		};
 	}
+
+	namespace IO
+	{
+		enum class SeekOrigin : std::int8_t
+		{
+			Begin = 0,
+			Current = 1,
+			End = 2
+		};
+
+		class IStream : public Object
+		{
+		public:
+			virtual Boolean CanRead() = 0;
+			virtual Boolean CanWrite() = 0;
+			virtual Boolean CanSeek() = 0;
+			virtual Boolean CanTimeout() = 0;
+			virtual Int64 GetLength() = 0;
+			virtual Int64 GetPosition() = 0;
+			virtual Int64 GetTimeout() = 0;
+			virtual void SetTimeout(Int64 timeout) = 0;
+			virtual Int32 ReadByte() = 0;
+			virtual void WriteByte(Byte data) = 0;
+			virtual void Read(Byte* buffer, Int32 index, Int32 count) = 0;
+			virtual void Write(Byte* buffer, Int32 index, Int32 count) = 0;
+			virtual Int64 Seek(Int64 offset, SeekOrigin origin);
+		};
+
+		class ITextReader : public Object
+		{
+		public:
+			virtual void Close() = 0;
+			virtual Int32 Peek() = 0;
+			virtual Int32 Read() = 0;
+			//virtual Int32 Read(Char* buffer, Int32 index, Int32 count) = 0;
+			virtual String ReadToEnd() = 0;
+			virtual String ReadLine() = 0;
+		};
+
+		class StreamReader : public virtual ITextReader
+		{
+
+		};
+	}
+
+	class Console
+	{
+	public:
+		static ref<IO::ITextReader> GetIn()
+		{
+			throw NotImplementedException();
+		}
+	};
 
 }

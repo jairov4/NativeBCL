@@ -32,24 +32,12 @@ namespace System
 	{
 		return value | (value << 16);
 	}
-
-	Boolean Int16::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const Int16&>(obj);
-		return value == b.value;
-	}
-
+	
 	Boolean Int16::Equals(const Int16& obj) const
 	{
 		return value == obj.value;
 	}
-
-	Int32 Int16::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const Int16&>(obj);
-		return value - b.value;
-	}
-
+	
 	Int32 Int16::CompareTo(const Int16& obj) const
 	{
 		return value - obj.value;

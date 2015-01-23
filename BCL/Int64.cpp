@@ -22,6 +22,11 @@ namespace System
 		return value;
 	}
 
+	Int64& Int64::operator= (Int64::int64 v)
+	{
+		value = v;
+		return *this;
+	}
 
 	String Int64::ToString() const
 	{
@@ -33,26 +38,12 @@ namespace System
 	{
 		return static_cast<Int32>(value & 0xFFFFFFFF) ^ static_cast<Int32>(value >> 32);
 	}
-
-	Boolean Int64::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const Int64&>(obj);
-		return value == b.value;
-	}
-
+	
 	Boolean Int64::Equals(const Int64& obj) const
 	{
 		return value == obj.value;
 	}
-
-	Int32 Int64::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const Int64&>(obj);
-		if (value < b.value) return -1;
-		else if (value > b.value) return 1;
-		return 0;
-	}
-
+	
 	Int32 Int64::CompareTo(const Int64& obj) const
 	{
 		if (value < obj.value) return -1;

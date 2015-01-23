@@ -52,13 +52,7 @@ namespace System
 		hi = 0;
 		flags = point << ScaleShift;
 	}
-
-	Int32 Decimal::CompareTo(const Object& obj) const
-	{
-		// TODO Fix it
-		throw NotImplementedException();
-	}
-
+	
 	Int32 Decimal::CompareTo(const Boolean& obj) const
 	{
 		// TODO Fix it
@@ -82,9 +76,4 @@ namespace System
 		return static_cast<Int32>(flags ^ hi ^ lo ^ mid);
 	}
 
-	Boolean Decimal::Equals(const Object& obj) const
-	{
-		// TODO Fix it
-		throw NotImplementedException();
-	}
 }

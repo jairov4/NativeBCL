@@ -32,24 +32,12 @@ namespace System
 	{
 		return value ^ (value << 8);
 	}
-
-	Boolean SByte::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const SByte&>(obj);
-		return value == b.value;
-	}
-
+	
 	Boolean SByte::Equals(const SByte& obj) const
 	{		
 		return value == obj.value;
 	}
-
-	Int32 SByte::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const SByte&>(obj);
-		return value - b.value;
-	}
-
+	
 	Int32 SByte::CompareTo(const SByte& obj) const
 	{
 		return value - obj.value;

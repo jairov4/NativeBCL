@@ -33,26 +33,12 @@ namespace System
 	{
 		return static_cast<UInt32>(value & 0xFFFFFFFF) ^ static_cast<UInt32>(value >> 32);
 	}
-
-	Boolean UInt64::Equals(const Object& obj) const
-	{
-		auto b = static_cast<const UInt64&>(obj);
-		return value == b.value;
-	}
-
+	
 	Boolean UInt64::Equals(const UInt64& obj) const
 	{
 		return value == obj.value;
 	}
-
-	Int32 UInt64::CompareTo(const Object& obj) const
-	{
-		auto b = static_cast<const UInt64&>(obj);
-		if (value < b.value) return -1;
-		else if (value > b.value) return 1;
-		return 0;
-	}
-
+	
 	Int32 UInt64::CompareTo(const UInt64& obj) const
 	{		
 		if (value < obj.value) return -1;
