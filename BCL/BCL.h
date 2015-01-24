@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 namespace System
-{	
+{
 	struct Int16;
 	struct UInt16;
 	struct Int32;
@@ -25,14 +25,13 @@ namespace System
 	using ref = std::shared_ptr < T > ;
 
 	template<typename T, typename... TArgs>
-	ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
+	inline ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
 
 	struct Object
 	{
 	public:
 		virtual String ToString() const;
 		virtual Int32 GetHashCode() const;
-		virtual Boolean Equals(const Object& obj) const;
 	};
 
 	class String final : public Object
@@ -46,10 +45,10 @@ namespace System
 		String(const String& str);
 
 		Int32 GetLength() const;
+		operator std::wstring() const;
 
 		Int32 GetHashCode() const override;
 		String ToString() const override;
-		Boolean Equals(const Object& obj) const override;
 
 		Boolean operator==(const String& b) const;
 	};
@@ -72,7 +71,6 @@ namespace System
 		operator sbyte() const;
 		SByte& operator=(sbyte v);
 
-		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const SByte& obj) const;
 		Boolean Equals(const SByte& obj) const;
 
@@ -99,7 +97,6 @@ namespace System
 		operator byte() const;
 		Byte& operator=(byte v);
 
-		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Byte& obj) const;
 		Boolean Equals(const Byte& obj) const;
 
@@ -415,7 +412,7 @@ namespace System
 
 		String ToString() const override;
 		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		Boolean Equals(const DateTime& obj) const;
 	};
 
 	class TimeSpan final : public Object
@@ -428,7 +425,7 @@ namespace System
 
 		String ToString() const override;
 		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		Boolean Equals(const TimeSpan& obj) const;
 	};
 
 	class DateTimeOffset final : public Object
@@ -442,7 +439,7 @@ namespace System
 
 		String ToString() const override;
 		Int32 GetHashCode() const override;
-		Boolean Equals(const Object& obj) const override;
+		Boolean Equals(const DateTimeOffset& obj) const;
 	};
 
 	template<typename T>
@@ -472,6 +469,11 @@ namespace System
 		void SetNull()
 		{
 			hasValue = false;
+		}
+
+		Boolean Equals(const Nullable<T> obj) const
+		{
+			return hasValue == obj.hasValue ? (hasValue ? value == obj.value : true) : false;
 		}
 	};
 
@@ -505,64 +507,19 @@ namespace System
 
 	namespace Collections
 	{
-
-		template<class T>
-		class IEnumerator : public Object
-		{
-		public:
-			virtual Boolean MoveNext() = 0;
-			virtual T GetCurrent() const = 0;
-			virtual T operator*() const = 0;
-		};
-
-		template<class T>
-		class IReadOnlyCollection : public Object
-		{
-		public:
-			virtual Boolean Contains(T item) = 0;
-			virtual Int32 GetCount() = 0;
-		};
-
-		template<class T>
-		class ICollection : public virtual IReadOnlyCollection < T >
-		{
-		public:
-			virtual void Add(T item) = 0;
-			virtual void Remove(T value) = 0;
-			virtual void Clear() = 0;
-		};
-
-		template<class T>
-		class IReadOnlyList : public virtual IReadOnlyCollection < T >
-		{
-		public:
-			virtual T operator[] (Int32 index) = 0;
-			virtual T GetAt(Int32 index) = 0;
-			virtual Int32 IndexOf(T value) = 0;
-		};
-
-		template<class T>
-		class IList : public virtual ICollection<T>, public virtual IReadOnlyList < T >
-		{
-		public:
-			virtual void SetAt(Int32 index, T value) = 0;
-			virtual void Insert(Int32 index, T value) = 0;
-			virtual void RemoveAt(Int32 index) = 0;
-		};
-
 		template <class TEnumerator, class TIterator, class T>
-		class StlEnumerator : public virtual IEnumerator < T >
+		struct StlEnumerator
 		{
 		protected:
 			TIterator i, end;
 		public:
 			StlEnumerator(TIterator begin, TIterator end) : i(begin), end(end) {}
-			T operator* () const override { return GetCurrent(); }
+
 			TEnumerator& operator++ () { ++i; return (TEnumerator&)(*this); }
 			Boolean operator== (const TEnumerator& b) const { return i == b.i; }
 			Boolean operator!= (const TEnumerator& b) const { return i != b.i; }
 
-			virtual Boolean MoveNext() override
+			Boolean MoveNext()
 			{
 				if (i == end) return false;
 				++i;
@@ -571,18 +528,19 @@ namespace System
 		};
 
 		template<class T>
-		class List : public virtual IList < T >
+		class List : public Object
 		{
 		private:
 			typedef std::vector<T> TVector;
 			typedef typename TVector::const_iterator TVectorIterator;
 			TVector storage;
 
-			class ListEnumerator : public StlEnumerator < ListEnumerator, TVectorIterator, T >
+			struct ListEnumerator final : public StlEnumerator < ListEnumerator, TVectorIterator, T >
 			{
 			public:
 				ListEnumerator(TVectorIterator begin, TVectorIterator end) : StlEnumerator(begin, end) {}
-				virtual T GetCurrent() const override { return *i; }
+				const T& GetCurrent() const { return *i; }
+				const T& operator* () const { return GetCurrent(); }
 			};
 
 		public:
@@ -599,27 +557,32 @@ namespace System
 			{
 			}
 
-			ListEnumerator begin() const
+			virtual ListEnumerator begin() const
 			{
 				return ListEnumerator(storage.begin(), storage.end());
 			}
 
-			ListEnumerator end() const
+			virtual ListEnumerator end() const
 			{
 				return ListEnumerator(storage.end(), storage.end());
 			}
 
-			virtual void Add(T item) override
+			virtual void Add(const T& item)
 			{
 				storage.push_back(item);
 			}
 
-			virtual void Clear() override
+			virtual void Add(T&& item)
+			{
+				storage.push_back(item);
+			}
+
+			virtual void Clear()
 			{
 				storage.clear();
 			}
 
-			virtual void Remove(T value) override
+			virtual void Remove(const T& value)
 			{
 				for (int i = 0; i < storage.size(); i++)
 				{
@@ -631,87 +594,86 @@ namespace System
 				}
 			}
 
-			virtual Int32 GetCount() override
+			virtual Int32 GetCapacity() const
+			{
+				return (int)storage.capacity();
+			}
+
+			virtual Int32 GetCount() const
 			{
 				return (int)storage.size();
 			}
 
-			virtual Boolean Contains(T value) override
+			virtual Boolean Contains(T value) const
 			{
 				return std::find(storage.begin(), storage.end(), value) != storage.end();
 			}
 
-			virtual T operator[] (Int32 index) override
+			virtual const T& operator[] (Int32 index) const
 			{
 				return storage[index];
 			}
 
-			virtual T GetAt(Int32 index) override
+			virtual const T& GetAt(Int32 index) const
 			{
 				return storage[index];
 			}
 
-			virtual Int32 IndexOf(T value) override
+			virtual Int32 IndexOf(const T& value) const
 			{
 				auto it = std::find(storage.begin(), storage.end(), value);
 				if (it == storage.end()) return -1;
 				return (int)(it - storage.begin());
 			}
 
-			virtual void SetAt(Int32 index, T value) override
+			virtual void SetAt(Int32 index, const T& value)
 			{
 				storage[index] = value;
 			}
 
-			virtual void Insert(Int32 index, T value) override
+			virtual void SetAt(Int32 index, T&& value)
+			{
+				storage[index] = value;
+			}
+
+			virtual void Insert(Int32 index, const T& value)
 			{
 				storage.insert(storage.begin() + index, value);
 			}
 
-			virtual void RemoveAt(Int32 index) override
+			virtual void Insert(Int32 index, T&& value)
+			{
+				storage.insert(storage.begin() + index, value);
+			}
+
+			virtual void RemoveAt(Int32 index)
 			{
 				std::copy(storage.begin() + index + 1, storage.end(), storage.begin() + index);
 				storage.pop_back();
 			}
 		};
 
-		template<class T>
-		class IComparer : public Object
-		{
-		public:
-			Int32 Compare(T x, T y);
-		};
-
 		template<class TKey, class TValue>
-		class KeyValuePair : public Object
+		struct KeyValuePair final : public Object
 		{
-		public:
+		private:
 			TKey Key;
 			TValue Value;
 
-			KeyValuePair(TKey k, TValue v) : Key(k), Value(v) {}
-		};
-
-		template<class TKey, class TValue>
-		class IReadOnlyDictionary : public virtual IReadOnlyCollection < KeyValuePair<TKey, TValue> >
-		{
-			virtual TValue operator[](TKey key) = 0;
-			virtual ref<IReadOnlyCollection<TKey>> GetKeys() = 0;
-			virtual ref<IReadOnlyCollection<TValue>> GetValues() = 0;
-			virtual Boolean ContainsKey(TKey key) = 0;
-			virtual Boolean TryGetValue(TKey key, TValue& out_value) = 0;
-		};
-
-		template<class TKey, class TValue>
-		class IDictionary : public virtual IReadOnlyDictionary < TKey, TValue >
-		{
 		public:
-			virtual void Add(TKey key, TValue value) = 0;
-			virtual void Remove(TKey key) = 0;
+			KeyValuePair(TKey k, TValue v) : Key(k), Value(v) {}
+
+			const TKey& GetKey() const { return Key; }
+			const TValue& GetValue() const { return Value; }
+
+			Boolean Equals(const KeyValuePair<TKey, TValue>& obj) const
+			{
+				return Key == obj.Key && Value == obj.Value;
+			}
 		};
 
 		template<class TKey, class TValue>
-		class Dictionary : public virtual IDictionary < TKey, TValue >
+		class Dictionary : public Object
 		{
 		private:
 
@@ -728,53 +690,55 @@ namespace System
 			typedef typename Map::const_iterator TMapIterator;
 			typedef KeyValuePair<TKey, TValue> TKeyValuePair;
 
-			class KeyCollection : public virtual IReadOnlyCollection < TKey >
+			class KeysCollection final : public Object
 			{
 			private:
 				ref<Map> entries;
 
-				class KeyCollectionEnumerator : public StlEnumerator < KeyCollectionEnumerator, TMapIterator, TKey >
+				struct KeysCollectionEnumerator final : public StlEnumerator < KeysCollectionEnumerator, TMapIterator, TKey >
 				{
 				public:
-					KeyCollectionEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-					virtual TKey GetCurrent() const override { return i->first; }
+					KeysCollectionEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
+					const TKey& GetCurrent() const { return i->first; }
+					const TKey& operator* () const { return GetCurrent(); }
 				};
 
 			public:
 
-				KeyCollection(ref<Map> entries) : entries(entries) { }
+				KeysCollection(ref<Map> entries) : entries(entries) { }
 
-				KeyCollectionEnumerator begin() const
+				KeysCollectionEnumerator begin() const
 				{
 					return KeyCollectionEnumerator(entries->begin(), entries->end());
 				}
 
-				KeyCollectionEnumerator end() const
+				KeysCollectionEnumerator end() const
 				{
 					return KeyCollectionEnumerator(entries->end(), entries->end());
 				}
 
-				virtual Boolean Contains(TKey key) override
+				Boolean Contains(const TKey& key) const
 				{
 					return entries->find(key) != entries->end();
 				}
 
-				virtual Int32 GetCount() override
+				Int32 GetCount()
 				{
 					return (int)entries->size();
 				}
 			};
 
-			class ValuesCollection : public virtual IReadOnlyCollection < TValue >
+			class ValuesCollection final : public Object
 			{
 			private:
 				ref<Map> entries;
 
-				class ValuesCollectionEnumerator : public StlEnumerator < ValuesCollectionEnumerator, TMapIterator, TValue >
+				struct ValuesCollectionEnumerator final : public StlEnumerator < ValuesCollectionEnumerator, TMapIterator, TValue >
 				{
 				public:
 					ValuesCollectionEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-					virtual TValue GetCurrent() const override { return i->second; }
+					const TValue& GetCurrent() const { return i->second; }
+					const TValue& operator* () const { return GetCurrent(); }
 				};
 
 			public:
@@ -792,7 +756,7 @@ namespace System
 					return ValuesCollectionEnumerator(entries->end(), entries->end());
 				}
 
-				virtual Boolean Contains(TValue key) override
+				Boolean Contains(const TValue& key) const
 				{
 					for (auto& i : *entries)
 					{
@@ -801,34 +765,35 @@ namespace System
 					return false;
 				}
 
-				virtual Int32 GetCount() override { return (int)entries->size(); }
+				Int32 GetCount() const { return (int)entries->size(); }
 			};
 
-			class DictionaryEnumerator : public StlEnumerator < DictionaryEnumerator, TMapIterator, TKeyValuePair >
+			struct DictionaryEnumerator final : public StlEnumerator < DictionaryEnumerator, TMapIterator, TKeyValuePair >
 			{
 			public:
 				DictionaryEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-				virtual TKeyValuePair GetCurrent() const override { return TKeyValuePair(i->first, i->second); }
+				TKeyValuePair GetCurrent() const { return TKeyValuePair(i->first, i->second); }
+				TKeyValuePair operator* () const { return GetCurrent(); }
 			};
 
 			ref<Map> entries;
-			ref<IReadOnlyCollection<TKey>> keySet;
-			ref<IReadOnlyCollection<TValue>> valuesCollection;
+			ref<KeysCollection> keySet;
+			ref<ValuesCollection> valuesCollection;
 
 		public:
 
 			Dictionary()
 			{
 				entries = new_ref<Map>();
-				keySet = ref<IReadOnlyCollection<TKey>>(new KeyCollection(entries));
-				valuesCollection = ref<IReadOnlyCollection<TValue>>(new ValuesCollection(entries));
+				keySet = new_ref<KeysCollection>(entries);
+				valuesCollection = new_ref<ValuesCollection>(entries);
 			}
 
 			Dictionary(const Dictionary& copy)
 			{
 				entries = new_ref<Map>(copy.entries.get());
-				keySet = ref<IReadOnlyCollection<TKey>>(new KeyCollection(entries));
-				valuesCollection = ref<IReadOnlyCollection<TValue>>(new ValuesCollection(entries));
+				keySet = new_ref<KeysCollection>(entries);
+				valuesCollection = new_ref<ValuesCollection>(entries);
 			}
 
 			Dictionary(Dictionary&& rval)
@@ -838,64 +803,74 @@ namespace System
 				valuesCollection = rval.valuesCollection;
 			}
 
-			virtual TValue operator[](TKey key) override
+			virtual TValue operator[](const TKey& key) const
 			{
 				return (*entries)[key];
 			}
 
-			virtual ref<IReadOnlyCollection<TKey>> GetKeys() override
+			virtual ref<KeysCollection> GetKeys() const
 			{
 				return keySet;
 			}
 
-			virtual ref<IReadOnlyCollection<TValue>> GetValues() override
+			virtual ref<ValuesCollection> GetValues() const
 			{
 				return valuesCollection;
 			}
 
-			virtual void Add(TKey key, TValue value) override
+			virtual void Add(const TKey& key, const TValue& value)
 			{
 				(*entries)[key] = value;
 			}
 
-			virtual void Remove(TKey key) override
+			virtual void Add(const TKey& key, TValue&& value)
+			{
+				(*entries)[key] = value;
+			}
+
+			virtual void Add(TKey&& key, TValue&& value)
+			{
+				(*entries)[key] = value;
+			}
+
+			virtual void Remove(const TKey& key)
 			{
 				entries->erase(key);
 			}
 
-			DictionaryEnumerator begin() const
+			virtual DictionaryEnumerator begin() const
 			{
 				return DictionaryEnumerator(entries->begin(), entries->end());
 			}
 
-			DictionaryEnumerator end() const
+			virtual DictionaryEnumerator end() const
 			{
 				return DictionaryEnumerator(entries->end(), entries->end());
 			}
 
-			virtual Boolean ContainsKey(TKey key) override
+			virtual Boolean ContainsKey(const TKey& key) const
 			{
 				return GetKeys()->Contains(key);
 			}
 
-			virtual Boolean TryGetValue(TKey key, TValue& out_value) override
+			virtual Boolean TryGetValue(const TKey& key, TValue* out_value) const
 			{
 				auto r = entries->find(key);
 				if (r == entries->end()) return false;
-				out_value = r->second;
+				*out_value = r->second;
 				return true;
 			}
 
-			virtual Int32 GetCount() override
+			virtual Int32 GetCount() const
 			{
 				return (int)entries->size();
 			}
 
-			virtual Boolean Contains(KeyValuePair<TKey, TValue> pair)
+			virtual Boolean Contains(const KeyValuePair<TKey, TValue>& pair) const
 			{
-				for (auto& pairIt : *entries)
+				for (const auto& pairIt : *entries)
 				{
-					if (pairIt.first == pair.Key && pairIt.second == pair.Value)
+					if (pairIt.first == pair.GetKey() && pairIt.second == pair.GetValue())
 					{
 						return true;
 					}
@@ -929,7 +904,7 @@ namespace System
 			virtual void WriteByte(Byte data) = 0;
 			virtual void Read(Byte* buffer, Int32 index, Int32 count) = 0;
 			virtual void Write(Byte* buffer, Int32 index, Int32 count) = 0;
-			virtual Int64 Seek(Int64 offset, SeekOrigin origin);
+			virtual Int64 Seek(Int64 offset, SeekOrigin origin) = 0;
 		};
 
 		class ITextReader : public Object
@@ -938,7 +913,7 @@ namespace System
 			virtual void Close() = 0;
 			virtual Int32 Peek() = 0;
 			virtual Int32 Read() = 0;
-			//virtual Int32 Read(Char* buffer, Int32 index, Int32 count) = 0;
+			virtual Int32 Read(Char* buffer, Int32 index, Int32 count) = 0;
 			virtual String ReadToEnd() = 0;
 			virtual String ReadLine() = 0;
 		};

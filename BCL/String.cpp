@@ -23,6 +23,11 @@ namespace System
 	String::String(const String& str) : value(str.value)
 	{
 	}
+
+	String::operator std::wstring() const
+	{
+		return value;
+	}
 	
 	Int32 String::GetLength() const
 	{
@@ -33,12 +38,7 @@ namespace System
 	{
 		return 0;
 	}
-
-	Boolean String::Equals(const Object& str) const
-	{
-		return value == ((String&)str).value;
-	}
-
+	
 	String String::ToString() const
 	{
 		return *this;
