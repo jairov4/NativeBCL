@@ -22,6 +22,61 @@ namespace System
 		return value;
 	}
 
+	UInt64& UInt64::operator= (UInt64::uint64 v)
+	{
+		value = v;
+		return *this;
+	}
+
+	UInt64& UInt64::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	UInt64& UInt64::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	UInt64 UInt64::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	UInt64 UInt64::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	UInt64& UInt64::operator+=(const UInt64& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	UInt64& UInt64::operator-=(const UInt64& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	UInt64& UInt64::operator*=(const UInt64& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	UInt64& UInt64::operator/=(const UInt64& o)
+	{
+		value /= o.value;
+		return *this;
+	}
 
 	String UInt64::ToString() const
 	{

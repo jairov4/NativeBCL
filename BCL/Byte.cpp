@@ -21,7 +21,63 @@ namespace System
 	{
 		return value;
 	}
-	
+
+	Byte& Byte::operator= (Byte::byte v)
+	{
+		value = v;
+		return *this;
+	}
+
+	Byte& Byte::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	Byte& Byte::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	Byte Byte::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	Byte Byte::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	Byte& Byte::operator+=(const Byte& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	Byte& Byte::operator-=(const Byte& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	Byte& Byte::operator*=(const Byte& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	Byte& Byte::operator/=(const Byte& o)
+	{
+		value /= o.value;
+		return *this;
+	}
+
 	String Byte::ToString() const
 	{
 		String str;

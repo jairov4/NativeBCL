@@ -21,6 +21,62 @@ namespace System
 	{
 		return value;
 	}
+
+	Int16& Int16::operator= (Int16::int16 v)
+	{
+		value = v;
+		return *this;
+	}
+
+	Int16& Int16::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	Int16& Int16::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	Int16& Int16::operator+=(const Int16& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	Int16& Int16::operator-=(const Int16& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	Int16 Int16::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	Int16 Int16::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	Int16& Int16::operator*=(const Int16& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	Int16& Int16::operator/=(const Int16& o)
+	{
+		value /= o.value;
+		return *this;
+	}
 	
 	String Int16::ToString() const
 	{

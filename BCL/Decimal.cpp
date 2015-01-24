@@ -19,7 +19,7 @@ namespace System
 	{
 	}
 
-	Decimal::Decimal(Decimal& copy) : lo(copy.lo), mid(copy.mid), hi(copy.hi), flags(copy.flags)
+	Decimal::Decimal(const Decimal& copy) : lo(copy.lo), mid(copy.mid), hi(copy.hi), flags(copy.flags)
 	{
 	}
 

@@ -21,6 +21,61 @@ namespace System
 	{
 		return value;
 	}
+
+	SByte& SByte::operator= (SByte::sbyte v)
+	{
+		value = v;
+		return *this;
+	}
+
+	SByte& SByte::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	SByte& SByte::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	SByte SByte::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	SByte SByte::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	SByte& SByte::operator+=(const SByte& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	SByte& SByte::operator-=(const SByte& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	SByte& SByte::operator*=(const SByte& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+	SByte& SByte::operator/=(const SByte& o)
+	{
+		value /= o.value;
+		return *this;
+	}
 	
 	String SByte::ToString() const
 	{

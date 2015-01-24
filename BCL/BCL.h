@@ -17,7 +17,7 @@ namespace System
 	struct SByte;
 	struct Byte;
 	struct Boolean;
-	class String;
+	struct String;
 	class Exception;
 
 
@@ -34,23 +34,31 @@ namespace System
 		virtual Int32 GetHashCode() const;
 	};
 
-	class String final : public Object
+	struct String final
 	{
-		std::wstring value;
+	private:
+		ref<std::wstring> value;
 
 	public:
 		String();
 		String(const char* str);
 		String(const wchar_t* str);
+		String(const std::wstring& str);
 		String(const String& str);
+		String(String&& str);
 
 		Int32 GetLength() const;
+
+		Boolean Equals(const String& str) const;
+		Int32 GetHashCode() const;
+		const String& ToString() const;
+
 		operator std::wstring() const;
-
-		Int32 GetHashCode() const override;
-		String ToString() const override;
-
 		Boolean operator==(const String& b) const;
+
+		String operator+(const String& b) const;
+		String operator+(const char* b) const;
+		String operator+(const wchar_t* b) const;
 	};
 
 	struct SByte final
@@ -70,6 +78,14 @@ namespace System
 
 		operator sbyte() const;
 		SByte& operator=(sbyte v);
+		SByte& operator++();
+		SByte& operator--();
+		SByte operator++(int);
+		SByte operator--(int);
+		SByte& operator+=(const SByte& o);
+		SByte& operator-=(const SByte& o);
+		SByte& operator*=(const SByte& o);
+		SByte& operator/=(const SByte& o);
 
 		Int32 CompareTo(const SByte& obj) const;
 		Boolean Equals(const SByte& obj) const;
@@ -96,6 +112,14 @@ namespace System
 
 		operator byte() const;
 		Byte& operator=(byte v);
+		Byte& operator++();
+		Byte& operator--();
+		Byte operator++(int);
+		Byte operator--(int);
+		Byte& operator+=(const Byte& o);
+		Byte& operator-=(const Byte& o);
+		Byte& operator*=(const Byte& o);
+		Byte& operator/=(const Byte& o);
 
 		Int32 CompareTo(const Byte& obj) const;
 		Boolean Equals(const Byte& obj) const;
@@ -122,6 +146,14 @@ namespace System
 
 		operator int16() const;
 		Int16& operator=(int16 v);
+		Int16& operator++();
+		Int16& operator--();
+		Int16 operator++(int);
+		Int16 operator--(int);
+		Int16& operator+=(const Int16& o);
+		Int16& operator-=(const Int16& o);
+		Int16& operator*=(const Int16& o);
+		Int16& operator/=(const Int16& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int16& obj) const;
@@ -149,6 +181,14 @@ namespace System
 
 		operator uint16() const;
 		UInt16& operator=(uint16 v);
+		UInt16& operator++();
+		UInt16& operator--();
+		UInt16 operator++(int);
+		UInt16 operator--(int);
+		UInt16& operator+=(const UInt16& o);
+		UInt16& operator-=(const UInt16& o);
+		UInt16& operator*=(const UInt16& o);
+		UInt16& operator/=(const UInt16& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt16& obj) const;
@@ -176,6 +216,14 @@ namespace System
 
 		operator int32() const;
 		Int32& operator= (int32 v);
+		Int32& operator++();
+		Int32& operator--();
+		Int32 operator++(int);
+		Int32 operator--(int);
+		Int32& operator+=(const Int32& o);
+		Int32& operator-=(const Int32& o);
+		Int32& operator*=(const Int32& o);
+		Int32& operator/=(const Int32& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int32& obj) const;
@@ -202,6 +250,14 @@ namespace System
 
 		operator uint32() const;
 		UInt32& operator=(uint32 val);
+		UInt32& operator++();
+		UInt32& operator--();
+		UInt32 operator++(int);
+		UInt32 operator--(int);
+		UInt32& operator+=(const UInt32& o);
+		UInt32& operator-=(const UInt32& o);
+		UInt32& operator*=(const UInt32& o);
+		UInt32& operator/=(const UInt32& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt32& obj) const;
@@ -229,6 +285,14 @@ namespace System
 
 		operator int64() const;
 		Int64& operator=(int64 val);
+		Int64& operator++();
+		Int64& operator--();
+		Int64 operator++(int);
+		Int64 operator--(int);
+		Int64& operator+=(const Int64& o);
+		Int64& operator-=(const Int64& o);
+		Int64& operator*=(const Int64& o);
+		Int64& operator/=(const Int64& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int64& obj) const;
@@ -256,6 +320,14 @@ namespace System
 
 		operator uint64() const;
 		UInt64& operator=(uint64 val);
+		UInt64& operator++();
+		UInt64& operator--();
+		UInt64 operator++(int);
+		UInt64 operator--(int);
+		UInt64& operator+=(const UInt64& o);
+		UInt64& operator-=(const UInt64& o);
+		UInt64& operator*=(const UInt64& o);
+		UInt64& operator/=(const UInt64& o);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt64& obj) const;
@@ -293,6 +365,10 @@ namespace System
 
 		operator float() const;
 		Float& operator=(float val);
+		Float& operator+=(const Float& o);
+		Float& operator-=(const Float& o);
+		Float& operator*=(const Float& o);
+		Float& operator/=(const Float& o);
 
 		String ToString() const;
 		Int32 GetHashCode() const;
@@ -306,10 +382,13 @@ namespace System
 	public:
 		Double();
 		Double(double value);
-		Double(const double& value);
 
 		operator double() const;
 		Double& operator=(double val);
+		Double& operator+=(const Double& o);
+		Double& operator-=(const Double& o);
+		Double& operator*=(const Double& o);
+		Double& operator/=(const Double& o);
 
 		String ToString() const;
 		Int32 GetHashCode() const;
@@ -355,11 +434,11 @@ namespace System
 		Int32 mid;
 	public:
 		Decimal();
-		Decimal(Decimal& copy);
+		Decimal(const Decimal& copy);
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags);
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Boolean isNegative, Byte scale);
-		Decimal::Decimal(Int64 p, Byte point);
-		Decimal::Decimal(UInt64 p, Byte point);
+		Decimal(Int64 p, Byte point);
+		Decimal(UInt64 p, Byte point);
 
 		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Boolean& obj) const;
@@ -408,7 +487,7 @@ namespace System
 		Int64 value;
 	public:
 		DateTime();
-		DateTime(Int64 value);
+		explicit DateTime(Int64 value);
 
 		String ToString() const override;
 		Int32 GetHashCode() const override;
@@ -485,7 +564,7 @@ namespace System
 
 	public:
 		Exception();
-		Exception(String message);
+		explicit Exception(String message);
 		Exception(String message, ref<Exception> innerException);
 	};
 
@@ -493,7 +572,7 @@ namespace System
 	{
 	public:
 		NotImplementedException();
-		NotImplementedException(String message);
+		explicit NotImplementedException(String message);
 		NotImplementedException(String message, ref<Exception> innerException);
 	};
 
@@ -501,7 +580,7 @@ namespace System
 	{
 	public:
 		InvalidOperationException();
-		InvalidOperationException(String message);
+		explicit InvalidOperationException(String message);
 		InvalidOperationException(String message, ref<Exception> innerException);
 	};
 
@@ -549,7 +628,7 @@ namespace System
 			{
 			}
 
-			List(int capacity) : storage(capacity)
+			explicit List(int capacity) : storage(capacity)
 			{
 			}
 

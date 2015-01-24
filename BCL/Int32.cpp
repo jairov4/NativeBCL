@@ -28,6 +28,56 @@ namespace System
 		return *this;
 	}
 
+	Int32& Int32::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	Int32& Int32::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	Int32 Int32::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	Int32 Int32::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	Int32& Int32::operator+=(const Int32& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	Int32& Int32::operator-=(const Int32& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	Int32& Int32::operator*=(const Int32& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	Int32& Int32::operator/=(const Int32& o)
+	{
+		value /= o.value;
+		return *this;
+	}
+	
 	String Int32::ToString() const
 	{
 		String str;

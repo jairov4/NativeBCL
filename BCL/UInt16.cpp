@@ -21,6 +21,62 @@ namespace System
 	{
 		return value;
 	}
+
+	UInt16& UInt16::operator= (UInt16::uint16 v)
+	{
+		value = v;
+		return *this;
+	}
+
+	UInt16& UInt16::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	UInt16& UInt16::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	UInt16 UInt16::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	UInt16 UInt16::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	UInt16& UInt16::operator+=(const UInt16& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	UInt16& UInt16::operator-=(const UInt16& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	UInt16& UInt16::operator*=(const UInt16& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	UInt16& UInt16::operator/=(const UInt16& o)
+	{
+		value /= o.value;
+		return *this;
+	}
 	
 	String UInt16::ToString() const
 	{

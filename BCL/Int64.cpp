@@ -28,6 +28,56 @@ namespace System
 		return *this;
 	}
 
+	Int64& Int64::operator++()
+	{
+		value++;
+		return *this;
+	}
+
+	Int64& Int64::operator--()
+	{
+		value--;
+		return *this;
+	}
+
+	Int64 Int64::operator++(int)
+	{
+		auto copy = value;
+		value++;
+		return copy;
+	}
+
+	Int64 Int64::operator--(int)
+	{
+		auto copy = value;
+		value--;
+		return copy;
+	}
+
+	Int64& Int64::operator+=(const Int64& o)
+	{
+		value += o.value;
+		return *this;
+	}
+
+	Int64& Int64::operator-=(const Int64& o)
+	{
+		value -= o.value;
+		return *this;
+	}
+
+	Int64& Int64::operator*=(const Int64& o)
+	{
+		value *= o.value;
+		return *this;
+	}
+
+	Int64& Int64::operator/=(const Int64& o)
+	{
+		value /= o.value;
+		return *this;
+	}
+
 	String Int64::ToString() const
 	{
 		String str;
