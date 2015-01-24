@@ -584,7 +584,7 @@ namespace System
 
 			virtual void Remove(const T& value)
 			{
-				for (int i = 0; i < storage.size(); i++)
+				for (std::int32_t i = 0; i < (std::int32_t)storage.size(); i++)
 				{
 					if (storage[i] == value)
 					{
