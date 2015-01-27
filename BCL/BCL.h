@@ -33,7 +33,7 @@ namespace System
 
 
 	template <typename T>
-	using ref = std::shared_ptr < T >;
+	using ref = std::shared_ptr < T > ;
 
 	template<typename T, typename... TArgs>
 	inline ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
@@ -388,7 +388,16 @@ namespace System
 		float value;
 	public:
 		Float();
+		Float(const Float& copy);
 		Float(float value);
+
+		static const Float MinValue;
+		static const Float MaxValue;
+
+		static const Float Epsilon;
+		static const Float NegativeInfinity;
+		static const Float PositiveInfinity;
+		static const Float NaN;
 
 		operator float() const;
 		Float& operator=(float val);
@@ -398,8 +407,10 @@ namespace System
 		Float& operator/=(const Float& o);
 
 		static Boolean IsNaN(Float d);
+		static Boolean IsInfinity(Float d);
 
 		Int32 CompareTo(const Float& obj) const;
+		Boolean Equals(const Float& obj) const;
 
 		String ToString() const;
 		Int32 GetHashCode() const;
@@ -412,18 +423,29 @@ namespace System
 		double value;
 	public:
 		Double();
-		Double(double value);
+		Double(double_t value);
+		Double(const Double& copy);
 
-		operator double() const;
-		Double& operator=(double val);
+		static const Double MinValue;
+		static const Double MaxValue;
+
+		static const Double Epsilon;
+		static const Double NegativeInfinity;
+		static const Double PositiveInfinity;
+		static const Double NaN;
+
+		operator double_t() const;
+		Double& operator=(double_t val);
 		Double& operator+=(const Double& o);
 		Double& operator-=(const Double& o);
 		Double& operator*=(const Double& o);
 		Double& operator/=(const Double& o);
 
 		static Boolean IsNaN(Double d);
+		static Boolean IsInfinity(Double d);
 
 		Int32 CompareTo(const Double& obj) const;
+		Boolean Equals(const Double& obj) const;
 
 		String ToString() const;
 		Int32 GetHashCode() const;
@@ -518,7 +540,7 @@ namespace System
 		DateTime(Int64 ticks, DateTimeKind kind);
 		DateTime(Int32 year, Int32 month, Int32 day);
 		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second);
-		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond);		
+		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond);
 		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, DateTimeKind kind);
 
 		Boolean operator>(const DateTime& ts) const;
@@ -634,10 +656,10 @@ namespace System
 
 	public:
 		DateTimeOffset(Int64 ticks, TimeSpan offset);
-		DateTimeOffset(DateTime value, TimeSpan offset);		
+		DateTimeOffset(DateTime value, TimeSpan offset);
 		DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, TimeSpan offset);
 		DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond, TimeSpan offset);
-			
+
 		static const DateTimeOffset MinValue;
 		static const DateTimeOffset MaxValue;
 

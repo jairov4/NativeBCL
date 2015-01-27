@@ -147,7 +147,9 @@
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Decimal.cpp" />
+    <ClCompile Include="Double.cpp" />
     <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="Float.cpp" />
     <ClCompile Include="Int16.cpp" />
     <ClCompile Include="Int32.cpp" />
     <ClCompile Include="Int64.cpp" />

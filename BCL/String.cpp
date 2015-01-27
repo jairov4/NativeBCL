@@ -49,6 +49,16 @@ namespace System
 		return (std::int32_t)value->length();
 	}
 
+	Int32 String::CompareTo(const String& b) const
+	{
+		return value->compare(*(b.value));
+	}
+
+	Boolean String::Equals(const String& str) const
+	{
+		return *value == *(str.value);
+	}
+
 	Int32 String::GetHashCode() const
 	{
 		return (std::int32_t)hash<wstring>()(*value);
@@ -61,7 +71,7 @@ namespace System
 
 	Boolean String::operator== (const String& b) const
 	{
-		return value == b.value;
+		return *value == *(b.value);
 	}
 
 	String String::operator+(const String& b) const

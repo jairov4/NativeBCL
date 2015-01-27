@@ -70,7 +70,7 @@ namespace Test
 			TestAssertTrue(jj.Equals(10), String(L"Bad ") + typeName + " post-increment");
 
 			ii = 20;
-			j = ++ii;
+			jj = ++ii;
 			TestAssertTrue(ii.Equals(21), String(L"Bad ") + typeName + " pre-increment");
 			TestAssertTrue(jj.Equals(21), String(L"Bad ") + typeName + " pre-increment");
 
@@ -122,7 +122,7 @@ namespace Test
 			TestAssertTrue(jj.Equals(10), String(L"Bad ") + typeName + " post-increment");
 
 			ii = 20;
-			j = ++ii;
+			jj = ++ii;
 			TestAssertTrue(ii.Equals(21), String(L"Bad ") + typeName + " pre-increment");
 			TestAssertTrue(jj.Equals(21), String(L"Bad ") + typeName + " pre-increment");
 
@@ -204,6 +204,53 @@ namespace Test
 			TestAssertEquals(sizeof(Int64), 8ull, "bad sizeof(Int64)");
 		}
 	};
+
+	class TestBasicDateTime
+	{
+	public:
+		void TestBasic()
+		{
+			auto r = DateTime::GetNow();
+			TestAssertEquals(r.GetKind(), DateTimeKind::Local, "Bad DateTimeKind of Now");
+			r = DateTime::GetUtcNow();
+			TestAssertEquals(r.GetKind(), DateTimeKind::Utc, "Bad DateTimeKind of UtcNow");
+			r = DateTime(2015, 1, 12, 5, 10, 3, 145);
+			TestAssertEquals(r.GetKind(), DateTimeKind::Unspecified, "Bad DateTimeKind of ctor without Kind");
+			TestAssertEquals<Int32>(r.GetYear(), 2015, "Bad year");
+			TestAssertEquals<Int32>(r.GetMonth(), 1, "Bad month");
+			TestAssertEquals<Int32>(r.GetDay(), 12, "Bad day");
+			TestAssertEquals<Int32>(r.GetHour(), 5, "Bad hour");
+			TestAssertEquals<Int32>(r.GetMinute(), 10, "Bad minute");
+			TestAssertEquals<Int32>(r.GetSecond(), 3, "Bad second");
+			TestAssertEquals<Int32>(r.GetMillisecond(), 145, "Bad millisecond");
+		}
+
+		void TestBasicArith()
+		{
+			auto r = DateTime(2015, 1, 12, 5, 10, 3, 145);
+			
+			r = r.AddYears(1);
+			TestAssertEquals<Int32>(r.GetYear(), 2016, "Bad year"); 
+			
+			r = r.AddMonths(1);
+			TestAssertEquals<Int32>(r.GetMonth(), 2, "Bad month"); 
+			
+			r = r.AddDays(1);
+			TestAssertEquals<Int32>(r.GetDay(), 13, "Bad day"); 
+			
+			r = r.AddHours(1);
+			TestAssertEquals<Int32>(r.GetHour(), 6, "Bad hour"); 
+			
+			r = r.AddMinutes(1);
+			TestAssertEquals<Int32>(r.GetMinute(), 11, "Bad minute");
+			
+			r = r.AddSeconds(1);
+			TestAssertEquals<Int32>(r.GetSecond(), 4, "Bad second");
+			
+			r = r.AddMilliseconds(1);
+			TestAssertEquals<Int32>(r.GetMillisecond(), 146, "Bad millisecond");
+		}
+	};
 }
 
 int main(int argc, char** argv)
@@ -213,6 +260,7 @@ int main(int argc, char** argv)
 	TestBasicTypeSize test0;
 	TestBasicList test1;
 	TestBasicTypesArith test2;
+	TestBasicDateTime test3;
 
 	test0.TestSizes();
 	test1.TestList();
@@ -226,6 +274,9 @@ int main(int argc, char** argv)
 	test2.TestUInt16();
 	test2.TestUInt32();
 	test2.TestUInt64();
+
+	test3.TestBasic();
+	test3.TestBasicArith();
 
 	return 0;
 }

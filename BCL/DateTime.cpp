@@ -202,6 +202,15 @@ namespace System
 		value = ((UInt64)ticks | (GetKindBits(kind) << KindShift));
 	}
 
+	Int32 DateTime::DaysInMonth(Int32 year, Int32 month)
+	{
+		if (month < 1 || month > 12) throw ArgumentOutOfRangeException("month");
+		
+		// IsLeapYear checks the year argument
+		const Int32* days = IsLeapYear(year) ? DaysToMonth366 : DaysToMonth365;
+		return days[month] - days[month - 1];
+	}
+
 	// Checks whether a given year is a leap year. This method returns true if
 	// year is a leap year, or false if not.
 	bool DateTime::IsLeapYear(Int32 year)
@@ -248,7 +257,9 @@ namespace System
 	{
 		SYSTEMTIME sysTime;
 		GetSystemTime(&sysTime);
-		uint64_t ticks = DateToTicks(sysTime.wYear, sysTime.wMonth, sysTime.wDay) + TimeToTicks(sysTime.wHour, sysTime.wMinute, sysTime.wSecond) + sysTime.wMilliseconds * TicksPerMillisecond;
+		uint64_t ticks = DateToTicks(sysTime.wYear, sysTime.wMonth, sysTime.wDay) 
+			+ TimeToTicks(sysTime.wHour, sysTime.wMinute, sysTime.wSecond) 
+			+ sysTime.wMilliseconds * TicksPerMillisecond;
 		return DateTime((UInt64)(ticks | (uint64_t)KindUtc));
 	}
 
@@ -524,6 +535,13 @@ namespace System
 		return value == other.value;
 	}
 
+	/////////////////////////////////////////////////////////////////////////
+	// Implementation of TimeSpan
+
+	const TimeSpan TimeSpan::Zero = TimeSpan(0);
+	const TimeSpan TimeSpan::MaxValue = TimeSpan(Int64::MaxValue);
+	const TimeSpan TimeSpan::MinValue = TimeSpan(Int64::MinValue);
+
 	TimeSpan::TimeSpan(Int64 ticks) : ticks(ticks)
 	{
 	}
@@ -741,6 +759,7 @@ namespace System
 		return (int32_t)ticks ^ (int32_t)(ticks >> 32);
 	}
 
+	/////////////////////////////////////////////////////////////////////////
 	// Implementation of DateTimeOffset
 
 	const Int64 MaxOffset = TicksPerHour * 14;
