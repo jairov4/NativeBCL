@@ -19,15 +19,20 @@ namespace System
 	{
 	}
 
+	String::String(const wchar_t* str) : value(new_ref<wstring>(str))
+	{
+	}
+
+	String::String(const char* str) : value(new_ref<wstring>(CharArrayToWstring(str)))
+	{
+
+	}
+
 	String::String(const wstring& str) : value(new_ref<wstring>(str))
 	{
 	}
-
-	String::String(const char*str) : value(new_ref<wstring>(CharArrayToWstring(str)))
-	{
-	}
-
-	String::String(const wchar_t* str) : value(new_ref<wstring>(str))
+		
+	String::String(wstring&& str) : value(new_ref<wstring>(str))
 	{
 	}
 

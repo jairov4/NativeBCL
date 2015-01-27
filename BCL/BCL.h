@@ -71,9 +71,10 @@ namespace System
 
 	public:
 		String();
-		String(const char* str);
 		String(const wchar_t* str);
+		String(const char* str);
 		String(const std::wstring& str);
+		String(std::wstring&& str);
 		String(const String& str);
 		String(String&& str);
 
@@ -279,6 +280,7 @@ namespace System
 		UInt32(const UInt32& copy);
 
 		operator uint32() const;
+
 		UInt32& operator=(uint32 val);
 		UInt32& operator++();
 		UInt32& operator--();
@@ -654,14 +656,49 @@ namespace System
 		DateTime dateTime;
 		Int16 offset;
 
+		DateTime GetClockDateTime() const;
+
+		DateTimeOffset(DateTime value, Int16 offset);
+
 	public:
 		DateTimeOffset(Int64 ticks, TimeSpan offset);
 		DateTimeOffset(DateTime value, TimeSpan offset);
+		DateTimeOffset(DateTime value);
 		DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, TimeSpan offset);
 		DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond, TimeSpan offset);
 
 		static const DateTimeOffset MinValue;
 		static const DateTimeOffset MaxValue;
+
+		static DateTimeOffset GetNow();
+		static DateTimeOffset GetUtcNow();
+
+		DateTimeOffset AddTicks(Int64 value) const;
+		DateTimeOffset AddYears(Int32 value) const;
+		DateTimeOffset AddSeconds(Double value) const;
+		DateTimeOffset AddMonths(Int32 value) const;
+		DateTimeOffset AddMinutes(Double value) const;
+		DateTimeOffset AddMilliseconds(Double value) const;
+		DateTimeOffset AddHours(Double value) const;
+		DateTimeOffset AddDays(Double value) const;
+		DateTimeOffset Add(const TimeSpan& value) const;
+		DateTimeOffset Subtract(const TimeSpan& value) const;
+
+		Int32 GetDayOfYear() const;
+		DayOfWeek GetDayOfWeek() const;
+		Int32 GetDay() const;
+		Int32 GetMonth() const;
+		Int32 GetYear() const;
+		Int32 GetMillisecond() const;
+		Int32 GetSecond() const;
+		Int32 GetMinute() const;
+		Int32 GetHour() const;
+		Int64 GetTicks() const;
+		Int64 GetUtcTicks() const;
+		DateTime GetDate() const;
+		TimeSpan GetOffset() const;
+		DateTime GetDateTime() const;
+		DateTime GetUtcDateTime() const;
 
 		String ToString() const;
 		Int32 GetHashCode() const;

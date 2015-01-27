@@ -142,10 +142,10 @@ namespace System
 		return kindBits;
 	}
 
-	DateTime::DateTime(Int64 ticks, DateTimeKind kind, Boolean isAmbiguousDst) 
+	DateTime::DateTime(Int64 ticks, DateTimeKind kind, Boolean isAmbiguousDst)
 		: value((UInt64)ticks | (isAmbiguousDst ? KindLocalAmbiguousDst : KindLocal))
 	{
-		if (ticks < MinTicks || ticks > MaxTicks) 
+		if (ticks < MinTicks || ticks > MaxTicks)
 		{
 			throw new ArgumentOutOfRangeException("ticks", "DateTime Bad Ticks");
 		}
@@ -174,10 +174,10 @@ namespace System
 	{
 	}
 
-	DateTime::DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond) 
+	DateTime::DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond)
 		: value(DateToTicks(year, month, day) + TimeToTicks(hour, minute, second) + millisecond * TicksPerMillisecond)
 	{
-		if (millisecond < 0 || millisecond >= MillisPerSecond) 
+		if (millisecond < 0 || millisecond >= MillisPerSecond)
 		{
 			throw new ArgumentOutOfRangeException("millisecond");
 		}
@@ -205,7 +205,7 @@ namespace System
 	Int32 DateTime::DaysInMonth(Int32 year, Int32 month)
 	{
 		if (month < 1 || month > 12) throw ArgumentOutOfRangeException("month");
-		
+
 		// IsLeapYear checks the year argument
 		const Int32* days = IsLeapYear(year) ? DaysToMonth366 : DaysToMonth365;
 		return days[month] - days[month - 1];
@@ -225,40 +225,20 @@ namespace System
 
 	DateTime DateTime::GetNow()
 	{
-		DateTime utc = GetUtcNow();
-		Boolean isAmbiguousLocalDst = false;
-		
-		DYNAMIC_TIME_ZONE_INFORMATION timeZone;
-		DWORD currentMode = GetDynamicTimeZoneInformation(&timeZone);
-		Int64 offset = timeZone.Bias * TicksPerMinute;
-		if (currentMode == TIME_ZONE_ID_DAYLIGHT)
-		{
-			offset += timeZone.DaylightBias * TicksPerMinute;
-		}
-		else if (currentMode == TIME_ZONE_ID_STANDARD)
-		{
-			offset += timeZone.StandardBias * TicksPerMinute;
-		}
-
-		// Int64 offset = TimeZoneInfo.GetDateTimeNowUtcOffsetFromUtc(utc, out isAmbiguousLocalDst).Ticks;
-		auto tick = utc.GetTicks() + offset;
-		if (tick > MaxTicks)
-		{
-			return DateTime(MaxTicks, DateTimeKind::Local);
-		}
-		if (tick < MinTicks) 
-		{
-			return DateTime(MinTicks, DateTimeKind::Local);
-		}
-		return DateTime(tick, DateTimeKind::Local, isAmbiguousLocalDst);
+		SYSTEMTIME time;
+		GetLocalTime(&time);
+		auto ticks = DateToTicks(time.wYear, time.wMonth, time.wDay)
+			+ TimeToTicks(time.wHour, time.wMinute, time.wSecond)
+			+ time.wMilliseconds * TicksPerMillisecond;
+		return DateTime((UInt64)(ticks | (uint64_t)KindLocal));
 	}
 
 	DateTime DateTime::GetUtcNow()
 	{
 		SYSTEMTIME sysTime;
 		GetSystemTime(&sysTime);
-		uint64_t ticks = DateToTicks(sysTime.wYear, sysTime.wMonth, sysTime.wDay) 
-			+ TimeToTicks(sysTime.wHour, sysTime.wMinute, sysTime.wSecond) 
+		uint64_t ticks = DateToTicks(sysTime.wYear, sysTime.wMonth, sysTime.wDay)
+			+ TimeToTicks(sysTime.wHour, sysTime.wMinute, sysTime.wSecond)
 			+ sysTime.wMilliseconds * TicksPerMillisecond;
 		return DateTime((UInt64)(ticks | (uint64_t)KindUtc));
 	}
@@ -799,6 +779,11 @@ namespace System
 		return (int16_t)(offset.GetTicks() / TicksPerMinute);
 	}
 
+	DateTimeOffset::DateTimeOffset(DateTime value, Int16 offset)
+		: dateTime(value), offset(offset)
+	{
+	}
+
 	DateTimeOffset::DateTimeOffset(Int64 ticks, TimeSpan offset)
 		: dateTime(ValidateDate(DateTime(ticks), offset)), offset(ValidateOffset(offset))
 	{
@@ -823,12 +808,161 @@ namespace System
 	DateTimeOffset::DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, TimeSpan offset)
 		: offset(ValidateOffset(offset)), dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second), offset))
 	{
-		
 	}
 
 	DateTimeOffset::DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond, TimeSpan offset)
 		: offset(ValidateOffset(offset)), dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second, millisecond), offset))
 	{
+	}
 
+	DateTime DateTimeOffset::GetClockDateTime() const
+	{
+		return DateTime((dateTime + GetOffset()).GetTicks(), DateTimeKind::Unspecified);
+	}
+
+	TimeSpan DateTimeOffset::GetOffset() const
+	{
+		return TimeSpan(0, (int32_t)offset, 0);
+	}
+
+	DateTime DateTimeOffset::GetDateTime() const
+	{
+		return GetClockDateTime();
+	}
+
+	DateTime DateTimeOffset::GetUtcDateTime() const
+	{
+		return DateTime(dateTime.GetTicks(), DateTimeKind::Utc);
+	}
+
+	Int64 DateTimeOffset::GetTicks() const
+	{
+		return GetClockDateTime().GetTicks();
+	}
+
+	Int64 DateTimeOffset::GetUtcTicks() const
+	{
+		return GetUtcDateTime().GetTicks();
+	}
+
+	Int32 DateTimeOffset::GetMillisecond() const
+	{
+		return GetClockDateTime().GetMillisecond();
+	}
+
+	Int32 DateTimeOffset::GetSecond() const
+	{
+		return GetClockDateTime().GetSecond();
+	}
+
+	Int32 DateTimeOffset::GetMinute() const
+	{
+		return GetClockDateTime().GetMinute();
+	}
+
+	Int32 DateTimeOffset::GetHour() const
+	{
+		return GetClockDateTime().GetHour();
+	}
+
+	Int32 DateTimeOffset::GetDay() const
+	{
+		return GetClockDateTime().GetDay();
+	}
+
+	Int32 DateTimeOffset::GetMonth() const
+	{
+		return GetClockDateTime().GetMonth();
+	}
+
+	Int32 DateTimeOffset::GetYear() const
+	{
+		return GetClockDateTime().GetYear();
+	}
+
+	Int32 DateTimeOffset::GetDayOfYear() const
+	{
+		return GetClockDateTime().GetDayOfYear();
+	}
+
+	DateTime DateTimeOffset::GetDate() const
+	{
+		return GetClockDateTime().GetDate();
+	}
+
+
+	DateTimeOffset DateTimeOffset::AddTicks(Int64 value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddTicks(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::Add(const TimeSpan& value) const
+	{
+		return DateTimeOffset(GetClockDateTime().Add(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::Subtract(const TimeSpan& value) const
+	{
+		return DateTimeOffset(GetClockDateTime().Subtract(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddMilliseconds(Double value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddMilliseconds(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddSeconds(Double value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddSeconds(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddMinutes(Double value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddMinutes(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddHours(Double value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddHours(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddDays(Double value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddDays(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddMonths(Int32 value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddMonths(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::AddYears(Int32 value) const
+	{
+		return DateTimeOffset(GetClockDateTime().AddYears(value), offset);
+	}
+
+	DateTimeOffset DateTimeOffset::GetNow()
+	{
+		SYSTEMTIME time;
+		GetLocalTime(&time);
+
+		DYNAMIC_TIME_ZONE_INFORMATION dynamicTimeZoneInfo;
+		auto mode = GetDynamicTimeZoneInformation(&dynamicTimeZoneInfo);
+
+		Int16 offset = dynamicTimeZoneInfo.Bias;
+		switch (mode)
+		{
+		case TIME_ZONE_ID_STANDARD: offset += dynamicTimeZoneInfo.StandardBias; break;
+		case TIME_ZONE_ID_DAYLIGHT: offset += dynamicTimeZoneInfo.DaylightBias; break;
+		}
+
+		return DateTimeOffset(time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, TimeSpan(offset*TicksPerMinute));
+	}
+
+	DateTimeOffset DateTimeOffset::GetUtcNow()
+	{
+		SYSTEMTIME time;
+		GetSystemTime(&time);
+		return DateTimeOffset(time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds, TimeSpan(0));
 	}
 }

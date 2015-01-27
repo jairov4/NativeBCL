@@ -30,7 +30,7 @@ namespace Test
 	template<typename T>
 	void TestAssertEquals(const T& value, const T& expectedValue, String field)
 	{
-		if (!(value == expectedValue)) throw TestFailedException(String("Value is different of expected: ") + field);
+		if (!(value == expectedValue)) throw TestFailedException(String(L"Value is different of expected: ") + field);
 	}
 
 	class TestBasicTypesArith
@@ -39,7 +39,7 @@ namespace Test
 
 		template<typename T>
 		void TestUnsigned()
-		{			
+		{
 			auto typeName = typeid(T).name();
 
 			T a = 2;
@@ -87,7 +87,7 @@ namespace Test
 
 		template<typename T>
 		void TestSigned()
-		{			
+		{
 			auto typeName = typeid(T).name();
 
 			T a = 2;
@@ -152,6 +152,12 @@ namespace Test
 		void TestUInt64() { TestUnsigned<UInt64>(); }
 
 		void TestInt64() { TestSigned<Int64>(); }
+
+		void TestString()
+		{
+			String str(L"Hola mundo");
+			printf("%d", str.GetLength());
+		}
 	};
 
 	class TestBasicList
@@ -160,31 +166,31 @@ namespace Test
 		void TestList()
 		{
 			List<String> listOfStrings;
-			listOfStrings.Add("Hola mundo");
-			listOfStrings.Add("Nunca mas");
+			listOfStrings.Add(L"Hola mundo");
+			listOfStrings.Add(L"Nunca mas");
 
-			TestAssertEquals<Int32>(listOfStrings.GetCount(), 2, "Bad list implementation");
+			TestAssertEquals<Int32>(listOfStrings.GetCount(), 2, L"Bad list implementation");
 
 			int i = 0;
 			for (const auto& iter : listOfStrings)
 			{
-				if (i == 0) TestAssertEquals<String>(iter, "Hola mundo", "iteration");
-				if (i == 1) TestAssertEquals<String>(iter, "Nunca mas", "iteration");
+				if (i == 0) TestAssertEquals<String>(iter, L"Hola mundo", L"iteration");
+				if (i == 1) TestAssertEquals<String>(iter, L"Nunca mas", L"iteration");
 				i++;
 			}
 
-			TestAssertEquals<String>(listOfStrings[0], "Hola mundo", "iteration");
-			TestAssertEquals<String>(listOfStrings[1], "Nunca mas", "iteration");
+			TestAssertEquals<String>(listOfStrings[0], L"Hola mundo", L"iteration");
+			TestAssertEquals<String>(listOfStrings[1], L"Nunca mas", L"iteration");
 
-			TestAssertTrue(listOfStrings.Contains("Hola mundo"), "bad List Contains()");
-			TestAssertFalse(listOfStrings.Contains("Non existent item"), "bad List Contains()");
+			TestAssertTrue(listOfStrings.Contains(L"Hola mundo"), L"bad List Contains()");
+			TestAssertFalse(listOfStrings.Contains(L"Non existent item"), L"bad List Contains()");
 
-			listOfStrings.SetAt(0, "Nueva cadena");
-			TestAssertEquals<String>(listOfStrings.GetAt(0), "Nueva cadena", "bad List SetAt()");
-			TestAssertEquals(listOfStrings.GetAt(0), listOfStrings[0], "bad List SetAt()");
+			listOfStrings.SetAt(0, L"Nueva cadena");
+			TestAssertEquals<String>(listOfStrings.GetAt(0), L"Nueva cadena", L"bad List SetAt()");
+			TestAssertEquals(listOfStrings.GetAt(0), listOfStrings[0], L"bad List SetAt()");
 
 			listOfStrings.Clear();
-			TestAssertEquals<Int32>(listOfStrings.GetCount(), 0, "Bad List Clear()");
+			TestAssertEquals<Int32>(listOfStrings.GetCount(), 0, L"Bad List Clear()");
 		}
 	};
 
@@ -193,15 +199,15 @@ namespace Test
 	public:
 		void TestSizes()
 		{
-			TestAssertEquals(sizeof(Char), 2ull, "bad sizeof(Char)");
-			TestAssertEquals(sizeof(Byte), 1ull, "bad sizeof(Byte)");
-			TestAssertEquals(sizeof(SByte), 1ull, "bad sizeof(SByte)");
-			TestAssertEquals(sizeof(UInt16), 2ull, "bad sizeof(UInt16)");
-			TestAssertEquals(sizeof(Int16), 2ull, "bad sizeof(Int16)");
-			TestAssertEquals(sizeof(UInt32), 4ull, "bad sizeof(UInt32)");
-			TestAssertEquals(sizeof(Int32), 4ull, "bad sizeof(Int32)");
-			TestAssertEquals(sizeof(UInt64), 8ull, "bad sizeof(UInt64)");
-			TestAssertEquals(sizeof(Int64), 8ull, "bad sizeof(Int64)");
+			TestAssertEquals(sizeof(Char), 2ull, L"bad sizeof(Char)");
+			TestAssertEquals(sizeof(Byte), 1ull, L"bad sizeof(Byte)");
+			TestAssertEquals(sizeof(SByte), 1ull, L"bad sizeof(SByte)");
+			TestAssertEquals(sizeof(UInt16), 2ull, L"bad sizeof(UInt16)");
+			TestAssertEquals(sizeof(Int16), 2ull, L"bad sizeof(Int16)");
+			TestAssertEquals(sizeof(UInt32), 4ull, L"bad sizeof(UInt32)");
+			TestAssertEquals(sizeof(Int32), 4ull, L"bad sizeof(Int32)");
+			TestAssertEquals(sizeof(UInt64), 8ull, L"bad sizeof(UInt64)");
+			TestAssertEquals(sizeof(Int64), 8ull, L"bad sizeof(Int64)");
 		}
 	};
 
@@ -211,44 +217,58 @@ namespace Test
 		void TestBasic()
 		{
 			auto r = DateTime::GetNow();
-			TestAssertEquals(r.GetKind(), DateTimeKind::Local, "Bad DateTimeKind of Now");
+			TestAssertEquals(r.GetKind(), DateTimeKind::Local, L"Bad DateTimeKind of Now");
 			r = DateTime::GetUtcNow();
-			TestAssertEquals(r.GetKind(), DateTimeKind::Utc, "Bad DateTimeKind of UtcNow");
+			TestAssertEquals(r.GetKind(), DateTimeKind::Utc, L"Bad DateTimeKind of UtcNow");
 			r = DateTime(2015, 1, 12, 5, 10, 3, 145);
-			TestAssertEquals(r.GetKind(), DateTimeKind::Unspecified, "Bad DateTimeKind of ctor without Kind");
-			TestAssertEquals<Int32>(r.GetYear(), 2015, "Bad year");
-			TestAssertEquals<Int32>(r.GetMonth(), 1, "Bad month");
-			TestAssertEquals<Int32>(r.GetDay(), 12, "Bad day");
-			TestAssertEquals<Int32>(r.GetHour(), 5, "Bad hour");
-			TestAssertEquals<Int32>(r.GetMinute(), 10, "Bad minute");
-			TestAssertEquals<Int32>(r.GetSecond(), 3, "Bad second");
-			TestAssertEquals<Int32>(r.GetMillisecond(), 145, "Bad millisecond");
+			TestAssertEquals(r.GetKind(), DateTimeKind::Unspecified, L"Bad DateTimeKind of ctor without Kind");
+			TestAssertEquals<Int32>(r.GetYear(), 2015, L"Bad year");
+			TestAssertEquals<Int32>(r.GetMonth(), 1, L"Bad month");
+			TestAssertEquals<Int32>(r.GetDay(), 12, L"Bad day");
+			TestAssertEquals<Int32>(r.GetHour(), 5, L"Bad hour");
+			TestAssertEquals<Int32>(r.GetMinute(), 10, L"Bad minute");
+			TestAssertEquals<Int32>(r.GetSecond(), 3, L"Bad second");
+			TestAssertEquals<Int32>(r.GetMillisecond(), 145, L"Bad millisecond");
+		}
+
+		void TestBasicOffset()
+		{
+			auto r = DateTimeOffset::GetNow();
+			r = DateTimeOffset::GetUtcNow();
+			r = DateTimeOffset(DateTime(2015, 1, 12, 5, 10, 3, 145), TimeSpan(-5, 0, 0));			
+			TestAssertEquals<Int32>(r.GetYear(), 2015, L"Bad year");
+			TestAssertEquals<Int32>(r.GetMonth(), 1, L"Bad month");
+			TestAssertEquals<Int32>(r.GetDay(), 12, L"Bad day");
+			TestAssertEquals<Int32>(r.GetHour(), 5, L"Bad hour");
+			TestAssertEquals<Int32>(r.GetMinute(), 10, L"Bad minute");
+			TestAssertEquals<Int32>(r.GetSecond(), 3, L"Bad second");
+			TestAssertEquals<Int32>(r.GetMillisecond(), 145, L"Bad millisecond");
 		}
 
 		void TestBasicArith()
 		{
 			auto r = DateTime(2015, 1, 12, 5, 10, 3, 145);
-			
+
 			r = r.AddYears(1);
-			TestAssertEquals<Int32>(r.GetYear(), 2016, "Bad year"); 
-			
+			TestAssertEquals<Int32>(r.GetYear(), 2016, L"Bad year");
+
 			r = r.AddMonths(1);
-			TestAssertEquals<Int32>(r.GetMonth(), 2, "Bad month"); 
-			
+			TestAssertEquals<Int32>(r.GetMonth(), 2, L"Bad month");
+
 			r = r.AddDays(1);
-			TestAssertEquals<Int32>(r.GetDay(), 13, "Bad day"); 
-			
+			TestAssertEquals<Int32>(r.GetDay(), 13, L"Bad day");
+
 			r = r.AddHours(1);
-			TestAssertEquals<Int32>(r.GetHour(), 6, "Bad hour"); 
-			
+			TestAssertEquals<Int32>(r.GetHour(), 6, L"Bad hour");
+
 			r = r.AddMinutes(1);
-			TestAssertEquals<Int32>(r.GetMinute(), 11, "Bad minute");
-			
+			TestAssertEquals<Int32>(r.GetMinute(), 11, L"Bad minute");
+
 			r = r.AddSeconds(1);
-			TestAssertEquals<Int32>(r.GetSecond(), 4, "Bad second");
-			
+			TestAssertEquals<Int32>(r.GetSecond(), 4, L"Bad second");
+
 			r = r.AddMilliseconds(1);
-			TestAssertEquals<Int32>(r.GetMillisecond(), 146, "Bad millisecond");
+			TestAssertEquals<Int32>(r.GetMillisecond(), 146, L"Bad millisecond");
 		}
 	};
 }
@@ -256,15 +276,16 @@ namespace Test
 int main(int argc, char** argv)
 {
 	using namespace Test;
-		
+
 	TestBasicTypeSize test0;
 	TestBasicList test1;
 	TestBasicTypesArith test2;
 	TestBasicDateTime test3;
 
 	test0.TestSizes();
+
 	test1.TestList();
-	
+
 	test2.TestSByte();
 	test2.TestInt16();
 	test2.TestInt32();
@@ -274,6 +295,8 @@ int main(int argc, char** argv)
 	test2.TestUInt16();
 	test2.TestUInt32();
 	test2.TestUInt64();
+
+	test2.TestString();
 
 	test3.TestBasic();
 	test3.TestBasicArith();
