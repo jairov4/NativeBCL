@@ -226,5 +226,6 @@ int main(int argc, char** argv)
 	test2.TestUInt16();
 	test2.TestUInt32();
 	test2.TestUInt64();
+
 	return 0;
 }

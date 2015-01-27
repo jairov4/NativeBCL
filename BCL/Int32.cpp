@@ -80,8 +80,7 @@ namespace System
 	
 	String Int32::ToString() const
 	{
-		String str;
-		return str;
+		throw NotImplementedException();
 	}
 
 	Int32 Int32::GetHashCode() const

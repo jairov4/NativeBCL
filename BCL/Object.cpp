@@ -11,4 +11,9 @@ namespace System
 	{
 		return reinterpret_cast<int>(this);
 	}
+
+	Type Object::GetType() const
+	{
+		return typeid(this);
+	}
 }

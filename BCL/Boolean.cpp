@@ -21,8 +21,7 @@ namespace System
 	
 	String Boolean::ToString() const
 	{
-		String str;
-		return str;
+		throw NotImplementedException();
 	}
 
 	Int32 Boolean::GetHashCode() const

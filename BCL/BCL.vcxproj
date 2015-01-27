@@ -86,6 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,6 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -111,6 +113,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <CallingConvention>FastCall</CallingConvention>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -128,6 +131,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
       <CallingConvention>FastCall</CallingConvention>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -136,11 +140,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArgumentException.cpp" />
+    <ClCompile Include="ArgumentOutOfRangeException.cpp" />
     <ClCompile Include="Boolean.cpp" />
     <ClCompile Include="Byte.cpp" />
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="DateTime.cpp" />
-    <ClCompile Include="DateTimeOffset.cpp" />
     <ClCompile Include="Decimal.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Int16.cpp" />
@@ -149,8 +154,11 @@
     <ClCompile Include="InvalidOperationException.cpp" />
     <ClCompile Include="NotImplementedException.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="OverflowException.cpp" />
     <ClCompile Include="Sbyte.cpp" />
     <ClCompile Include="String.cpp" />
+    <ClCompile Include="SystemException.cpp" />
+    <ClCompile Include="Type.cpp" />
     <ClCompile Include="UInt16.cpp" />
     <ClCompile Include="UInt32.cpp" />
     <ClCompile Include="UInt64.cpp" />

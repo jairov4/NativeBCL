@@ -46,12 +46,12 @@ namespace System
 
 	Int32 String::GetLength() const
 	{
-		return (int)value->length();
+		return (std::int32_t)value->length();
 	}
 
 	Int32 String::GetHashCode() const
 	{
-		return (int)hash<wstring>()(*value);
+		return (std::int32_t)hash<wstring>()(*value);
 	}
 
 	const String& String::ToString() const

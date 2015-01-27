@@ -80,8 +80,7 @@ namespace System
 	
 	String UInt16::ToString() const
 	{
-		String str;
-		return str;
+		throw NotImplementedException();
 	}
 
 	Int32 UInt16::GetHashCode() const

@@ -79,8 +79,7 @@ namespace System
 	
 	String SByte::ToString() const
 	{
-		String str;
-		return str;
+		throw NotImplementedException();
 	}
 
 	Int32 SByte::GetHashCode() const

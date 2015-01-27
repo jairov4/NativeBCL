@@ -53,7 +53,7 @@ namespace System
 		flags = point << ScaleShift;
 	}
 	
-	Int32 Decimal::CompareTo(const Boolean& obj) const
+	Int32 Decimal::CompareTo(const Decimal& obj) const
 	{
 		// TODO Fix it
 		throw NotImplementedException();
@@ -67,8 +67,7 @@ namespace System
 
 	String Decimal::ToString() const
 	{
-		String str;
-		return str;
+		throw NotImplementedException();
 	}
 
 	Int32 Decimal::GetHashCode() const
