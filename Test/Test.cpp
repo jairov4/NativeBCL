@@ -156,7 +156,7 @@ namespace Test
 		void TestString()
 		{
 			String str(L"Hola mundo");
-			printf("%d", str.GetLength());
+			printf("%d", int32_t(str.GetLength()));
 		}
 	};
 
@@ -172,10 +172,10 @@ namespace Test
 			TestAssertEquals<Int32>(listOfStrings.GetCount(), 2, L"Bad list implementation");
 
 			int i = 0;
-			for (const auto& iter : listOfStrings)
+			for (auto iter = listOfStrings.GetGenericEnumerator(); iter->HasNext(); iter->MoveNext())
 			{
-				if (i == 0) TestAssertEquals<String>(iter, L"Hola mundo", L"iteration");
-				if (i == 1) TestAssertEquals<String>(iter, L"Nunca mas", L"iteration");
+				if (i == 0) TestAssertEquals<String>(iter->GetCurrent(), L"Hola mundo", L"iteration");
+				if (i == 1) TestAssertEquals<String>(iter->GetCurrent(), L"Nunca mas", L"iteration");
 				i++;
 			}
 

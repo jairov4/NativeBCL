@@ -23,7 +23,7 @@ namespace System
 	{
 	}
 
-	
+
 	Decimal::Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags) : lo(lo), mid(mid), hi(hi), flags(flags)
 	{
 	}
@@ -52,6 +52,94 @@ namespace System
 		hi = 0;
 		flags = point << ScaleShift;
 	}
+
+	Decimal::Decimal(Byte i)
+	{
+		lo = i;
+		flags = hi = mid = 0;
+	}
+	
+	Decimal::Decimal(UInt16 i)
+	{
+		lo = i;
+		flags = hi = mid = 0;
+	}
+
+	Decimal::Decimal(UInt32 i)
+	{
+		lo = i;
+		flags = hi = mid = 0;
+	}
+
+	Decimal::Decimal(UInt64 i)
+	{
+		lo = uint32_t(i);
+		mid = uint32_t(i >> 32);
+		flags = hi = 0;
+	}
+
+	Decimal::Decimal(SByte i)
+	{
+		hi = mid = 0;
+		if (i < 0) 
+		{
+			flags = SignMask;
+			lo = uint32_t(~i) + 1;
+		}
+		else
+		{
+			flags = 0;
+			lo = uint32_t(i);
+		}
+	}
+
+	Decimal::Decimal(Int16 i)
+	{
+		hi = mid = 0;
+		if (i < 0)
+		{
+			flags = SignMask;
+			lo = uint32_t(~i) + 1;
+		}
+		else
+		{
+			flags = 0;
+			lo = uint32_t(i);
+		}
+	}
+
+	Decimal::Decimal(Int32 i)
+	{
+		hi = mid = 0;
+		if (i < 0)
+		{
+			flags = SignMask;
+			lo = uint32_t(~i) + 1;
+		}
+		else
+		{
+			flags = 0;
+			lo = uint32_t(i);
+		}
+	}
+
+	Decimal::Decimal(Int64 i)
+	{
+		hi = 0;
+		if (i < 0)
+		{
+			flags = SignMask;
+			auto v = uint64_t(~i) + 1;
+			mid = uint32_t(v >> 32);
+			lo = uint32_t(v);
+		}
+		else
+		{
+			flags = 0;
+			mid = uint32_t(i >> 32);
+			lo = uint32_t(i);
+		}
+	}
 	
 	Int32 Decimal::CompareTo(const Decimal& obj) const
 	{
@@ -73,6 +161,14 @@ namespace System
 	Int32 Decimal::GetHashCode() const
 	{
 		return static_cast<Int32>(flags ^ hi ^ lo ^ mid);
+	}
+
+	/*
+	format like (+|-)?[0-9]+\.(e(+|-)?[0-9]+)?
+	*/
+	Decimal Decimal::Parse(const String& str)
+	{
+		throw NotImplementedException();
 	}
 
 }

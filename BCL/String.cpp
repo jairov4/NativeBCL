@@ -49,9 +49,15 @@ namespace System
 		return *value;
 	}
 
+	String& String::operator=(const String& b)
+	{
+		value = b.value;
+		return *this;
+	}
+
 	Int32 String::GetLength() const
 	{
-		return (std::int32_t)value->length();
+		return int32_t(value->length());
 	}
 
 	Int32 String::CompareTo(const String& b) const
@@ -66,7 +72,7 @@ namespace System
 
 	Int32 String::GetHashCode() const
 	{
-		return (std::int32_t)hash<wstring>()(*value);
+		return int32_t(hash<wstring>()(*value));
 	}
 
 	const String& String::ToString() const

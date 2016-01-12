@@ -31,7 +31,6 @@ namespace System
 	struct Type;
 	class Exception;
 
-
 	template <typename T>
 	using ref = std::shared_ptr < T > ;
 
@@ -44,6 +43,7 @@ namespace System
 		virtual String ToString() const;
 		virtual Int32 GetHashCode() const;
 		Type GetType() const;
+		virtual ~Object() = default;
 	};
 
 	BCLAPIOBJ struct Type final
@@ -88,6 +88,7 @@ namespace System
 		Type GetType() const;
 
 		operator std::wstring() const;
+		String& operator= (const String& b);
 		Boolean operator==(const String& b) const;
 
 		String operator+(const String& b) const;
@@ -493,10 +494,24 @@ namespace System
 	public:
 		Decimal();
 		Decimal(const Decimal& copy);
+		
+		Decimal(Int32 i);
+		Decimal(Int64 i);
+		Decimal(Int16 i);
+		Decimal(SByte i);
+		Decimal(UInt32 i);
+		Decimal(UInt64 i);
+		Decimal(UInt16 i);
+		Decimal(Byte i);
+		Decimal(Float i);
+		Decimal(Double d);
+
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags);
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Boolean isNegative, Byte scale);
 		Decimal(Int64 p, Byte point);
 		Decimal(UInt64 p, Byte point);
+
+		static Decimal Parse(const String& str);
 
 		Int32 CompareTo(const Decimal& obj) const;
 		Boolean Equals(const Decimal& obj) const;
@@ -807,40 +822,67 @@ namespace System
 
 	namespace Collections
 	{
-		template <class TEnumerator, class TIterator, class T>
-		struct StlEnumerator
+		class IEnumerator : public Object
 		{
-		protected:
-			TIterator i, end;
 		public:
-			StlEnumerator(TIterator begin, TIterator end) : i(begin), end(end) {}
-
-			TEnumerator& operator++ () { ++i; return (TEnumerator&)(*this); }
-			Boolean operator== (const TEnumerator& b) const { return i == b.i; }
-			Boolean operator!= (const TEnumerator& b) const { return i != b.i; }
-
-			Boolean MoveNext()
-			{
-				if (i == end) return false;
-				++i;
-				return true;
-			}
+			virtual Boolean MoveNext() = 0;
+			virtual Boolean HasNext() = 0;
 		};
 
 		template<class T>
-		class List : public Object
+		class IGenericEnumerator : public IEnumerator
+		{
+		public:
+			virtual T& GetCurrent() = 0;
+		};
+
+		class IEnumerable : public Object
+		{
+		public:
+			virtual ref<IEnumerator> GetEnumerator() = 0;
+		};
+		
+		template<class T>
+		class IGenericEnumerable : public IEnumerable
+		{
+		public:
+			virtual ref<IGenericEnumerator<T>> GetGenericEnumerator() = 0;
+		};
+
+		template<class T>
+		class List : public IGenericEnumerable<T>
 		{
 		private:
 			typedef std::vector<T> TVector;
-			typedef typename TVector::const_iterator TVectorIterator;
+			typedef typename TVector::iterator TVectorIterator;
 			TVector storage;
 
-			struct ListEnumerator final : public StlEnumerator < ListEnumerator, TVectorIterator, T >
+			struct ListEnumerator final : public IGenericEnumerator<T>
 			{
+				TVectorIterator begin, end;
+
 			public:
-				ListEnumerator(TVectorIterator begin, TVectorIterator end) : StlEnumerator(begin, end) {}
-				const T& GetCurrent() const { return *i; }
-				const T& operator* () const { return GetCurrent(); }
+				explicit ListEnumerator(TVectorIterator begin, TVectorIterator end)
+				{
+					this->begin = begin;
+					this->end = end;
+				}
+
+				Boolean MoveNext() override
+				{
+					++begin;
+					return HasNext();
+				}
+
+				T& GetCurrent() override
+				{
+					return *begin;
+				}
+
+				Boolean HasNext() override
+				{
+					return begin != end;
+				}
 			};
 
 		public:
@@ -855,16 +897,6 @@ namespace System
 
 			List(List<T>& cp) : storage(cp.storage)
 			{
-			}
-
-			virtual ListEnumerator begin() const
-			{
-				return ListEnumerator(storage.begin(), storage.end());
-			}
-
-			virtual ListEnumerator end() const
-			{
-				return ListEnumerator(storage.end(), storage.end());
 			}
 
 			virtual void Add(const T& item)
@@ -884,7 +916,7 @@ namespace System
 
 			virtual void Remove(const T& value)
 			{
-				for (std::int32_t i = 0; i < (std::int32_t)storage.size(); i++)
+				for (auto i = 0; i < storage.size(); i++)
 				{
 					if (storage[i] == value)
 					{
@@ -896,12 +928,12 @@ namespace System
 
 			virtual Int32 GetCapacity() const
 			{
-				return (std::int32_t)storage.capacity();
+				return int32_t(storage.capacity());
 			}
 
 			virtual Int32 GetCount() const
 			{
-				return (std::int32_t)storage.size();
+				return int32_t(storage.size());
 			}
 
 			virtual Boolean Contains(T value) const
@@ -923,7 +955,7 @@ namespace System
 			{
 				auto it = std::find(storage.begin(), storage.end(), value);
 				if (it == storage.end()) return -1;
-				return (std::int32_t)(it - storage.begin());
+				return int32_t(it - storage.begin());
 			}
 
 			virtual void SetAt(Int32 index, const T& value)
@@ -950,6 +982,16 @@ namespace System
 			{
 				std::copy(storage.begin() + index + 1, storage.end(), storage.begin() + index);
 				storage.pop_back();
+			}
+
+			ref<IGenericEnumerator<T>> GetGenericEnumerator() override
+			{
+				return new_ref<ListEnumerator>(storage.begin(), storage.end());
+			}
+
+			ref<IEnumerator> GetEnumerator() override
+			{
+				return new_ref<ListEnumerator>(storage.begin(), storage.end());
 			}
 		};
 
@@ -987,20 +1029,35 @@ namespace System
 			};
 
 			typedef std::unordered_map<TKey, TValue, KeyHasher> Map;
-			typedef typename Map::const_iterator TMapIterator;
+			typedef typename Map::iterator TMapIterator;
 			typedef KeyValuePair<TKey, TValue> TKeyValuePair;
-
+			
 			class KeysCollection final : public Object
 			{
 			private:
 				ref<Map> entries;
 
-				struct KeysCollectionEnumerator final : public StlEnumerator < KeysCollectionEnumerator, TMapIterator, TKey >
+				struct KeysCollectionEnumerator final : public IGenericEnumerator<TKey>
 				{
+					TMapIterator begin, end;
+
 				public:
-					KeysCollectionEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-					const TKey& GetCurrent() const { return i->first; }
-					const TKey& operator* () const { return GetCurrent(); }
+					KeysCollectionEnumerator(TMapIterator begin, TMapIterator end)
+					{
+						this->begin = begin;
+						this->end = end;
+					}
+
+					Boolean MoveNext() override
+					{
+						++begin;
+						return begin != end;
+					}
+
+					TKey& GetCurrent() override
+					{
+						return begin->first;
+					}
 				};
 
 			public:
@@ -1024,7 +1081,7 @@ namespace System
 
 				Int32 GetCount()
 				{
-					return (std::int32_t)entries->size();
+					return std::int32_t(entries->size());
 				}
 			};
 
@@ -1033,12 +1090,27 @@ namespace System
 			private:
 				ref<Map> entries;
 
-				struct ValuesCollectionEnumerator final : public StlEnumerator < ValuesCollectionEnumerator, TMapIterator, TValue >
+				struct ValuesCollectionEnumerator final : public IGenericEnumerator<TValue>
 				{
+					TMapIterator begin, end;
+
 				public:
-					ValuesCollectionEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-					const TValue& GetCurrent() const { return i->second; }
-					const TValue& operator* () const { return GetCurrent(); }
+					ValuesCollectionEnumerator(TMapIterator begin, TMapIterator end)
+					{
+						this->begin = begin;
+						this->end = end;
+					}
+
+					Boolean MoveNext() override
+					{
+						++begin;
+						return begin != end;
+					}
+
+					TValue& GetCurrent() override
+					{
+						return begin->second;
+					}
 				};
 
 			public:
@@ -1065,15 +1137,30 @@ namespace System
 					return false;
 				}
 
-				Int32 GetCount() const { return (std::int32_t)entries->size(); }
+				Int32 GetCount() const { return int32_t(entries->size()); }
 			};
 
-			struct DictionaryEnumerator final : public StlEnumerator < DictionaryEnumerator, TMapIterator, TKeyValuePair >
+			struct DictionaryEnumerator final : public IGenericEnumerator<KeyValuePair<TKey, TValue>>
 			{
+				TMapIterator begin, end;
+
 			public:
-				DictionaryEnumerator(TMapIterator begin, TMapIterator end) : StlEnumerator(begin, end) {}
-				TKeyValuePair GetCurrent() const { return TKeyValuePair(i->first, i->second); }
-				TKeyValuePair operator* () const { return GetCurrent(); }
+				DictionaryEnumerator(TMapIterator begin, TMapIterator end)
+				{
+					this->begin = begin;
+					this->end = end;
+				}
+
+				Boolean MoveNext() override
+				{
+					++begin;
+					return begin != end;
+				}
+
+				KeyValuePair<TKey, TValue> GetCurrent() override
+				{
+					return KeyValuePair<TKey, TValue>(begin->first, begin->second);
+				}
 			};
 
 			ref<Map> entries;

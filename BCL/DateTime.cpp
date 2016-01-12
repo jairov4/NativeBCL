@@ -949,7 +949,7 @@ namespace System
 		DYNAMIC_TIME_ZONE_INFORMATION dynamicTimeZoneInfo;
 		auto mode = GetDynamicTimeZoneInformation(&dynamicTimeZoneInfo);
 
-		Int16 offset = dynamicTimeZoneInfo.Bias;
+		auto offset = dynamicTimeZoneInfo.Bias;
 		switch (mode)
 		{
 		case TIME_ZONE_ID_STANDARD: offset += dynamicTimeZoneInfo.StandardBias; break;

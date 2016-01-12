@@ -18,7 +18,13 @@ namespace System
 	{
 		return value;
 	}
-	
+
+	Boolean& Boolean::operator=(bool val)
+	{
+		value = val;
+		return *this;
+	}
+
 	String Boolean::ToString() const
 	{
 		throw NotImplementedException();
