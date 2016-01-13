@@ -168,14 +168,16 @@ namespace Test
 			List<String> listOfStrings;
 			listOfStrings.Add(L"Hola mundo");
 			listOfStrings.Add(L"Nunca mas");
+			listOfStrings.Add(L"Nunca jamas");
 
-			TestAssertEquals<Int32>(listOfStrings.GetCount(), 2, L"Bad list implementation");
+			TestAssertEquals<Int32>(listOfStrings.GetCount(), 3, L"Bad list implementation");
 
 			int i = 0;
 			for (auto iter = listOfStrings.GetGenericEnumerator(); iter->HasNext(); iter->MoveNext())
 			{
 				if (i == 0) TestAssertEquals<String>(iter->GetCurrent(), L"Hola mundo", L"iteration");
 				if (i == 1) TestAssertEquals<String>(iter->GetCurrent(), L"Nunca mas", L"iteration");
+				if (i == 2) TestAssertEquals<String>(iter->GetCurrent(), L"Nunca jamas", L"iteration");
 				i++;
 			}
 
