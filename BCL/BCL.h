@@ -32,7 +32,7 @@ namespace System
 	class Exception;
 
 	template <typename T>
-	using ref = std::shared_ptr < T > ;
+	using ref = std::shared_ptr<T>;
 
 	template<typename T, typename... TArgs>
 	inline ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
@@ -833,7 +833,7 @@ namespace System
 		class IGenericEnumerator : public IEnumerator
 		{
 		public:
-			virtual T& GetCurrent() = 0;
+			virtual T GetCurrent() = 0;
 		};
 
 		class IEnumerable : public Object
@@ -847,6 +847,50 @@ namespace System
 		{
 		public:
 			virtual ref<IGenericEnumerator<T>> GetGenericEnumerator() = 0;
+		};
+
+		class IReadOnlyCollection : public IEnumerable
+		{
+		public:
+			virtual Int32 GetCount() = 0;
+		};
+
+		template<class T>
+		class IGenericReadOnlyCollection : public IReadOnlyCollection
+		{
+		public:
+			virtual T GetAt(Int32 index) = 0;
+		};
+
+		class ICollection : public IReadOnlyCollection
+		{
+		public:
+			virtual void Clear() = 0;
+		};
+
+		template<class T>
+		class IGenericCollection : public IGenericReadOnlyCollection<T>, public ICollection
+		{
+		public:
+			virtual void Add(T item) = 0;
+			virtual void Remove(T item) = 0;
+			virtual Boolean Contains(T item) = 0;
+		};
+
+		class IList : public ICollection
+		{
+		public:
+			virtual void RemoveAt(Int32 index) = 0;
+		};
+
+		template<class T>
+		class IGenericList : public IGenericCollection<T>, public IList
+		{
+		public:
+			virtual void SetAt(Int32 index, T item) = 0;
+			virtual void Insert(Int32 index, T item) = 0;
+			virtual T operator[] (Int32 index) = 0;
+			virtual Int32 IndexOf(T item) = 0;
 		};
 
 		template<class T>
@@ -874,7 +918,7 @@ namespace System
 					return HasNext();
 				}
 
-				T& GetCurrent() override
+				T GetCurrent() override
 				{
 					return *begin;
 				}
@@ -887,9 +931,7 @@ namespace System
 
 		public:
 
-			List()
-			{
-			}
+			List() = default;
 
 			explicit List(int capacity) : storage(capacity)
 			{
@@ -941,7 +983,7 @@ namespace System
 				return std::find(storage.begin(), storage.end(), value) != storage.end();
 			}
 
-			virtual const T& operator[] (Int32 index) const
+			virtual T operator[] (Int32 index) const
 			{
 				return storage[index];
 			}
