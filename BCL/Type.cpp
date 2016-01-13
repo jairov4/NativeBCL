@@ -24,7 +24,7 @@ namespace System
 
 	Int32 Type::GetHashCode() const
 	{
-		return (std::int32_t)info.hash_code();
+		return int32_t(info.hash_code());
 	}
 	
 	Boolean Type::Equals(const Type& other) const

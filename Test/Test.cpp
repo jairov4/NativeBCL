@@ -234,7 +234,7 @@ namespace Test
 		{
 			auto r = DateTimeOffset::GetNow();
 			r = DateTimeOffset::GetUtcNow();
-			r = DateTimeOffset(DateTime(2015, 1, 12, 5, 10, 3, 145), TimeSpan(-5, 0, 0));			
+			r = DateTimeOffset(DateTime(2015, 1, 12, 5, 10, 3, 145), TimeSpan(-5, 0, 0));
 			TestAssertEquals<Int32>(r.GetYear(), 2015, L"Bad year");
 			TestAssertEquals<Int32>(r.GetMonth(), 1, L"Bad month");
 			TestAssertEquals<Int32>(r.GetDay(), 12, L"Bad day");

@@ -85,7 +85,7 @@ namespace System
 
 	Int32 Int64::GetHashCode() const
 	{
-		return static_cast<Int32>(value & 0xFFFFFFFF) ^ static_cast<Int32>(value >> 32);
+		return Int32(value & 0xFFFFFFFF) ^ Int32(value >> 32);
 	}
 	
 	Boolean Int64::Equals(const Int64& obj) const

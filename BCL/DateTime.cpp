@@ -35,7 +35,7 @@ namespace System
 
 	static const Int64 MinTicks = 0;
 	static const Int64 MaxTicks = DaysTo10000 * TicksPerDay - 1;
-	static const Int64 MaxMillis = (Int64)DaysTo10000 * MillisPerDay;
+	static const Int64 MaxMillis = Int64(DaysTo10000) * MillisPerDay;
 
 	static const Int64 FileTimeOffset = DaysTo1601 * TicksPerDay;
 	static const Int64 DoubleDateOffset = DaysTo1899 * TicksPerDay;
@@ -79,8 +79,8 @@ namespace System
 
 	static const Double DaysPerTick = 1.0 / TicksPerDay; // 1.1574074074074074074e-12
 
-	static const Int64 MaxSeconds = Int64::MaxValue / TicksPerSecond;
-	static const Int64 MinSeconds = Int64::MinValue / TicksPerSecond;
+	static const Int64 MaxSeconds = MaxTicks / TicksPerSecond;
+	static const Int64 MinSeconds = MinTicks / TicksPerSecond;
 
 	static const Int64 MaxMilliSeconds = Int64::MaxValue / TicksPerMillisecond;
 	static const Int64 MinMilliSeconds = Int64::MinValue / TicksPerMillisecond;
@@ -120,7 +120,7 @@ namespace System
 
 		// totalSeconds is bounded by 2^31 * 2^12 + 2^31 * 2^8 + 2^31,
 		// which is less than 2^44, meaning we won't overflow totalSeconds.
-		Int64 totalSeconds = (Int64)hour * 3600 + (Int64)minute * 60 + (Int64)second;
+		auto totalSeconds = Int64(hour) * 3600 + Int64(minute) * 60 + Int64(second);
 		if (totalSeconds > MaxSeconds || totalSeconds < MinSeconds)
 		{
 			throw ArgumentOutOfRangeException("", "TimeSpan Too Long");
@@ -143,7 +143,7 @@ namespace System
 	}
 
 	DateTime::DateTime(Int64 ticks, DateTimeKind kind, Boolean isAmbiguousDst)
-		: value((UInt64)ticks | (isAmbiguousDst ? KindLocalAmbiguousDst : KindLocal))
+		: value(UInt64(ticks) | (isAmbiguousDst ? KindLocalAmbiguousDst : KindLocal))
 	{
 		if (ticks < MinTicks || ticks > MaxTicks)
 		{
@@ -152,7 +152,7 @@ namespace System
 		if (kind != DateTimeKind::Local) throw ArgumentException("Private constructor is for local times only", "kind");
 	}
 
-	DateTime::DateTime(Int64 ticks) : value((UInt64)ticks)
+	DateTime::DateTime(Int64 ticks) : value(UInt64(ticks))
 	{
 		if (ticks < MinTicks || ticks > MaxTicks)
 			throw ArgumentOutOfRangeException("ticks", "DateTime Bad Ticks");
@@ -162,7 +162,7 @@ namespace System
 	{
 	}
 
-	DateTime::DateTime(Int64 ticks, DateTimeKind kind) : value((UInt64)ticks | (GetKindBits(kind) << KindShift))
+	DateTime::DateTime(Int64 ticks, DateTimeKind kind) : value(UInt64(ticks) | (GetKindBits(kind) << KindShift))
 	{
 		if (ticks < MinTicks || ticks > MaxTicks)
 		{
@@ -181,13 +181,13 @@ namespace System
 		{
 			throw new ArgumentOutOfRangeException("millisecond");
 		}
-		if ((Int64)value < MinTicks || (Int64)value > MaxTicks)
+		if (Int64(value) < MinTicks || Int64(value) > MaxTicks)
 		{
 			throw new ArgumentException("DateTime Range");
 		}
 	}
 
-	DateTime::DateTime(Int32 year, Int32 month, Int32 day) : value((UInt64)DateToTicks(year, month, day))
+	DateTime::DateTime(Int32 year, Int32 month, Int32 day) : value(UInt64(DateToTicks(year, month, day)))
 	{
 	}
 
@@ -199,7 +199,7 @@ namespace System
 		}
 
 		Int64 ticks = DateToTicks(year, month, day) + TimeToTicks(hour, minute, second);
-		value = ((UInt64)ticks | (GetKindBits(kind) << KindShift));
+		value = (UInt64(ticks) | (GetKindBits(kind) << KindShift));
 	}
 
 	Int32 DateTime::DaysInMonth(Int32 year, Int32 month)
@@ -230,7 +230,7 @@ namespace System
 		auto ticks = DateToTicks(time.wYear, time.wMonth, time.wDay)
 			+ TimeToTicks(time.wHour, time.wMinute, time.wSecond)
 			+ time.wMilliseconds * TicksPerMillisecond;
-		return DateTime((UInt64)(ticks | (uint64_t)KindLocal));
+		return DateTime(UInt64(ticks | KindLocal));
 	}
 
 	DateTime DateTime::GetUtcNow()
@@ -240,7 +240,7 @@ namespace System
 		uint64_t ticks = DateToTicks(sysTime.wYear, sysTime.wMonth, sysTime.wDay)
 			+ TimeToTicks(sysTime.wHour, sysTime.wMinute, sysTime.wSecond)
 			+ sysTime.wMilliseconds * TicksPerMillisecond;
-		return DateTime((UInt64)(ticks | (uint64_t)KindUtc));
+		return DateTime(UInt64(ticks | KindUtc));
 	}
 
 	DateTimeKind DateTime::GetKind() const
@@ -275,22 +275,22 @@ namespace System
 
 	Int32 DateTime::GetMillisecond() const
 	{
-		return (Int32)((GetInternalTicks() / TicksPerMillisecond) % 1000);
+		return Int32((GetInternalTicks() / TicksPerMillisecond) % 1000);
 	}
 
 	Int32 DateTime::GetSecond() const
 	{
-		return (Int32)((GetInternalTicks() / TicksPerSecond) % 60);
+		return Int32((GetInternalTicks() / TicksPerSecond) % 60);
 	}
 
 	Int32 DateTime::GetMinute() const
 	{
-		return (Int32)((GetInternalTicks() / TicksPerMinute) % 60);
+		return Int32((GetInternalTicks() / TicksPerMinute) % 60);
 	}
 
 	Int32 DateTime::GetHour() const
 	{
-		return (Int32)((GetInternalTicks() / TicksPerHour) % 24);
+		return Int32((GetInternalTicks() / TicksPerHour) % 24);
 	}
 
 	Int32 DateTime::GetDay() const
@@ -316,30 +316,30 @@ namespace System
 	DateTime DateTime::GetDate() const
 	{
 		Int64 ticks = GetInternalTicks();
-		return DateTime((UInt64)((ticks - ticks % TicksPerDay) | GetInternalKind()));
+		return DateTime(UInt64((ticks - ticks % TicksPerDay) | GetInternalKind()));
 	}
 
 	Int32 DateTime::GetDatePart(Int32 part) const
 	{
-		Int64 ticks = GetInternalTicks();
+		auto ticks = GetInternalTicks();
 		// n = number of days since 1/1/0001
-		int n = (int)(ticks / TicksPerDay);
+		auto n = int(ticks / TicksPerDay);
 		// y400 = number of whole 400-year periods since 1/1/0001
-		int y400 = n / DaysPer400Years;
+		auto y400 = n / DaysPer400Years;
 		// n = day number within 400-year period
 		n -= y400 * DaysPer400Years;
 		// y100 = number of whole 100-year periods within 400-year period
-		int y100 = n / DaysPer100Years;
+		auto y100 = n / DaysPer100Years;
 		// Last 100-year period has an extra day, so decrement result if 4
 		if (y100 == 4) y100 = 3;
 		// n = day number within 100-year period
 		n -= y100 * DaysPer100Years;
 		// y4 = number of whole 4-year periods within 100-year period
-		int y4 = n / DaysPer4Years;
+		auto y4 = n / DaysPer4Years;
 		// n = day number within 4-year period
 		n -= y4 * DaysPer4Years;
 		// y1 = number of whole years within 4-year period
-		int y1 = n / DaysPerYear;
+		auto y1 = n / DaysPerYear;
 		// Last year has an extra day, so decrement result if 4
 		if (y1 == 4) y1 = 3;
 		// If year was requested, compute and return it
@@ -353,11 +353,11 @@ namespace System
 		if (part == DatePartDayOfYear) return n + 1;
 		// Leap year calculation looks different from IsLeapYear since y1, y4,
 		// and y100 are relative to year 1, not year 0
-		bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
-		const Int32* days = leapYear ? DaysToMonth366 : DaysToMonth365;
+		auto leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
+		auto days = leapYear ? DaysToMonth366 : DaysToMonth365;
 		// All months have less than 32 days, so n >> 5 is a good conservative
 		// estimate for the month
-		int m = (n >> 5) + 1;
+		auto m = (n >> 5) + 1;
 		// m = 1-based month number
 		while (n >= days[m]) m++;
 		// If month was requested, return it
@@ -373,12 +373,12 @@ namespace System
 		{
 			throw ArgumentOutOfRangeException("value", "Bad Date Arithmetic");
 		}
-		return DateTime((UInt64)((ticks + value) | GetInternalKind()));
+		return DateTime(UInt64((ticks + value) | GetInternalKind()));
 	}
 
 	DateTime DateTime::Add(Double value, Int32 scale) const
 	{
-		Int64 millis = (int64_t)(value * scale + (value >= 0 ? 0.5 : -0.5));
+		Int64 millis = int64_t(value * scale + (value >= 0 ? 0.5 : -0.5));
 		if (millis <= -MaxMillis || millis >= MaxMillis) throw ArgumentOutOfRangeException("value", "Add Value");
 		return AddTicks(millis * TicksPerMillisecond);
 	}
@@ -446,7 +446,7 @@ namespace System
 		int days = DaysInMonth(y, m);
 		if (d > days) d = days;
 
-		return DateTime((UInt64)((DateToTicks(y, m, d) + GetInternalTicks() % TicksPerDay) | GetInternalKind()));
+		return DateTime(UInt64((DateToTicks(y, m, d) + GetInternalTicks() % TicksPerDay) | GetInternalKind()));
 	}
 
 	DateTime DateTime::AddYears(Int32 years) const
@@ -458,7 +458,7 @@ namespace System
 	Int32 DateTime::GetHashCode() const
 	{
 		int64_t ticks = GetInternalTicks();
-		return (int32_t)ticks ^ (int32_t)(ticks >> 32);
+		return int32_t(ticks) ^ int32_t(ticks >> 32);
 	}
 
 	Int32 DateTime::CompareTo(const DateTime& other) const
@@ -533,37 +533,37 @@ namespace System
 
 	TimeSpan::TimeSpan(Int32 days, Int32 hours, Int32 minutes, Int32 seconds, Int32 milliseconds)
 	{
-		Int64 totalMilliSeconds = ((Int64)days * 3600 * 24 + (Int64)hours * 3600 + (Int64)minutes * 60 + seconds) * 1000 + milliseconds;
+		Int64 totalMilliSeconds = (Int64(days) * 3600 * 24 + Int64(hours) * 3600 + Int64(minutes) * 60 + seconds) * 1000 + milliseconds;
 		if (totalMilliSeconds > MaxMilliSeconds || totalMilliSeconds < MinMilliSeconds)
 		{
 			throw ArgumentOutOfRangeException("", "TimeSpan Too Long");
 		}
-		ticks = (Int64)totalMilliSeconds * TicksPerMillisecond;
+		ticks = Int64(totalMilliSeconds) * TicksPerMillisecond;
 	}
 
 	Int32 TimeSpan::GetDays() const
 	{
-		return (int32_t)(ticks / TicksPerDay);
+		return int32_t(ticks / TicksPerDay);
 	}
 
 	Int32 TimeSpan::GetMilliseconds() const
 	{
-		return (int32_t)((ticks / TicksPerMillisecond) % 1000);
+		return int32_t((ticks / TicksPerMillisecond) % 1000);
 	}
 
 	Int32 TimeSpan::GetSeconds() const
 	{
-		return (int32_t)((ticks / TicksPerSecond) % 60);
+		return int32_t((ticks / TicksPerSecond) % 60);
 	}
 
 	Int32 TimeSpan::GetMinutes() const
 	{
-		return (int32_t)((ticks / TicksPerMinute) % 60);
+		return int32_t((ticks / TicksPerMinute) % 60);
 	}
 
 	Int32 TimeSpan::GetHours() const
 	{
-		return (int32_t)((ticks / TicksPerHour) % 24);
+		return int32_t((ticks / TicksPerHour) % 24);
 	}
 
 	Int64 TimeSpan::GetTicks() const
@@ -573,32 +573,32 @@ namespace System
 
 	Double TimeSpan::GetTotalDays() const
 	{
-		return ((double)ticks) * DaysPerTick;
+		return double(ticks) * DaysPerTick;
 	}
 
 	Double TimeSpan::GetTotalHours() const
 	{
-		return (double)ticks * HoursPerTick;
+		return double(ticks) * HoursPerTick;
 	}
 
 	Double TimeSpan::GetTotalSeconds() const
 	{
-		return (double)ticks * SecondsPerTick;
+		return double(ticks) * SecondsPerTick;
 	}
 
 	Double TimeSpan::GetTotalMinutes() const
 	{
-		return (double)ticks * MinutesPerTick;
+		return double(ticks) * MinutesPerTick;
 	}
 
 	Double TimeSpan::GetTotalMilliseconds() const
 	{
-		Double temp = (double)ticks * MillisecondsPerTick;
+		Double temp = double(ticks) * MillisecondsPerTick;
 		if (temp > MaxMilliSeconds)
-			return (double)MaxMilliSeconds;
+			return double(MaxMilliSeconds);
 
 		if (temp < MinMilliSeconds)
-			return (double)MinMilliSeconds;
+			return double(MinMilliSeconds);
 
 		return temp;
 	}
@@ -694,7 +694,7 @@ namespace System
 		{
 			throw OverflowException("TimeSpan Too Long");
 		}
-		return TimeSpan((int64_t)millis * TicksPerMillisecond);
+		return TimeSpan(int64_t(millis) * TicksPerMillisecond);
 	}
 
 	TimeSpan TimeSpan::FromMilliseconds(Double value)
@@ -736,7 +736,7 @@ namespace System
 
 	Int32 TimeSpan::GetHashCode() const
 	{
-		return (int32_t)ticks ^ (int32_t)(ticks >> 32);
+		return int32_t(ticks) ^ int32_t(ticks >> 32);
 	}
 
 	/////////////////////////////////////////////////////////////////////////
@@ -776,7 +776,7 @@ namespace System
 		{
 			throw ArgumentOutOfRangeException("offset", "Offset Out Of Range");
 		}
-		return (int16_t)(offset.GetTicks() / TicksPerMinute);
+		return int16_t(offset.GetTicks() / TicksPerMinute);
 	}
 
 	DateTimeOffset::DateTimeOffset(DateTime value, Int16 offset)
@@ -790,7 +790,7 @@ namespace System
 	}
 
 	DateTimeOffset::DateTimeOffset(DateTime dateTime, TimeSpan offset)
-		: offset(ValidateOffset(offset)), dateTime(ValidateDate(dateTime, offset))
+		: dateTime(ValidateDate(dateTime, offset)), offset(ValidateOffset(offset))
 	{
 		if (dateTime.GetKind() == DateTimeKind::Local)
 		{
@@ -806,12 +806,12 @@ namespace System
 	}
 
 	DateTimeOffset::DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, TimeSpan offset)
-		: offset(ValidateOffset(offset)), dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second), offset))
+		: dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second), offset)), offset(ValidateOffset(offset))
 	{
 	}
 
 	DateTimeOffset::DateTimeOffset(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond, TimeSpan offset)
-		: offset(ValidateOffset(offset)), dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second, millisecond), offset))
+		: dateTime(ValidateDate(DateTime(year, month, day, hour, minute, second, millisecond), offset)), offset(ValidateOffset(offset))
 	{
 	}
 
@@ -822,7 +822,7 @@ namespace System
 
 	TimeSpan DateTimeOffset::GetOffset() const
 	{
-		return TimeSpan(0, (int32_t)offset, 0);
+		return TimeSpan(0, int32_t(offset), 0);
 	}
 
 	DateTime DateTimeOffset::GetDateTime() const

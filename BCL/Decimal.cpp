@@ -19,16 +19,16 @@ namespace System
 	{
 	}
 
-	Decimal::Decimal(const Decimal& copy) : lo(copy.lo), mid(copy.mid), hi(copy.hi), flags(copy.flags)
+	Decimal::Decimal(const Decimal& copy) : flags(copy.flags), hi(copy.hi), lo(copy.lo), mid(copy.mid)
 	{
 	}
 
 
-	Decimal::Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags) : lo(lo), mid(mid), hi(hi), flags(flags)
+	Decimal::Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags) : flags(flags), hi(hi), lo(lo), mid(mid)
 	{
 	}
 
-	Decimal::Decimal(Int32 lo, Int32 mid, Int32 hi, Boolean isNegative, Byte scale) : lo(lo), mid(mid), hi(hi)
+	Decimal::Decimal(Int32 lo, Int32 mid, Int32 hi, Boolean isNegative, Byte scale) : hi(hi), lo(lo), mid(mid)
 	{
 		flags = scale;
 		if (isNegative) flags = flags | SignMask;

@@ -77,7 +77,7 @@ namespace System
 	Int32 Double::GetHashCode() const
 	{
 		std::hash<double_t> s;
-		return (int32_t)s(value);
+		return int32_t(s(value));
 	}
 
 	Boolean Double::Equals(const Double& obj) const

@@ -77,7 +77,7 @@ namespace System
 	Int32 Float::GetHashCode() const
 	{
 		std::hash<float_t> s;
-		return (int32_t)s(value);
+		return int32_t(s(value));
 	}
 
 	Boolean Float::Equals(const Float& obj) const

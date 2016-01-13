@@ -2,15 +2,15 @@
 
 namespace System
 {
-	Exception::Exception() : message(""), innerException(nullptr)
+	Exception::Exception() : innerException(nullptr), message("")
 	{
 	}
 
-	Exception::Exception(String message) : message(message), innerException(nullptr)
+	Exception::Exception(String message) : innerException(nullptr), message(message)
 	{
 	}
 
-	Exception::Exception(String message, ref<Exception> innerException) : message(message), innerException(innerException)
+	Exception::Exception(String message, ref<Exception> innerException) : innerException(innerException), message(message)
 	{
 	}
 }
