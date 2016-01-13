@@ -856,10 +856,10 @@ namespace System
 		};
 
 		template<class T>
-		class IGenericReadOnlyCollection : public IReadOnlyCollection
+		class IGenericReadOnlyCollection : public IReadOnlyCollection, public IGenericEnumerable<T>
 		{
 		public:
-			virtual T GetAt(Int32 index) = 0;
+			virtual Boolean Contains(T item) = 0;
 		};
 
 		class ICollection : public IReadOnlyCollection
@@ -874,7 +874,13 @@ namespace System
 		public:
 			virtual void Add(T item) = 0;
 			virtual void Remove(T item) = 0;
-			virtual Boolean Contains(T item) = 0;
+		};
+
+		template<class T>
+		class IGenericIReadOnlyList : public IGenericReadOnlyCollection<T>
+		{
+			virtual T operator[] (Int32 index) = 0;
+			virtual Int32 IndexOf(T item) = 0;
 		};
 
 		class IList : public ICollection
@@ -884,17 +890,15 @@ namespace System
 		};
 
 		template<class T>
-		class IGenericList : public IGenericCollection<T>, public IList
+		class IGenericList : public IGenericIReadOnlyList<T>, public IGenericCollection<T>, public IList
 		{
 		public:
 			virtual void SetAt(Int32 index, T item) = 0;
 			virtual void Insert(Int32 index, T item) = 0;
-			virtual T operator[] (Int32 index) = 0;
-			virtual Int32 IndexOf(T item) = 0;
 		};
 
 		template<class T>
-		class List : public IGenericEnumerable<T>
+		class List : public IGenericList<T>
 		{
 		private:
 			typedef std::vector<T> TVector;
@@ -940,23 +944,18 @@ namespace System
 			List(List<T>& cp) : storage(cp.storage)
 			{
 			}
-
-			virtual void Add(const T& item)
+			
+			virtual void Add(T item) override
 			{
 				storage.push_back(item);
 			}
 
-			virtual void Add(T&& item)
-			{
-				storage.push_back(item);
-			}
-
-			virtual void Clear()
+			virtual void Clear() override
 			{
 				storage.clear();
 			}
 
-			virtual void Remove(const T& value)
+			virtual void Remove(T value) override
 			{
 				for (auto i = 0; i < storage.size(); i++)
 				{
@@ -968,59 +967,44 @@ namespace System
 				}
 			}
 
-			virtual Int32 GetCapacity() const
+			virtual Int32 GetCapacity()
 			{
 				return int32_t(storage.capacity());
 			}
 
-			virtual Int32 GetCount() const
+			virtual Int32 GetCount() override
 			{
 				return int32_t(storage.size());
 			}
 
-			virtual Boolean Contains(T value) const
+			virtual Boolean Contains(T value) override
 			{
 				return std::find(storage.begin(), storage.end(), value) != storage.end();
 			}
 
-			virtual T operator[] (Int32 index) const
+			virtual T operator[] (Int32 index) override
 			{
 				return storage[index];
 			}
 
-			virtual const T& GetAt(Int32 index) const
-			{
-				return storage[index];
-			}
-
-			virtual Int32 IndexOf(const T& value) const
+			virtual Int32 IndexOf(T value) override
 			{
 				auto it = std::find(storage.begin(), storage.end(), value);
 				if (it == storage.end()) return -1;
 				return int32_t(it - storage.begin());
 			}
 
-			virtual void SetAt(Int32 index, const T& value)
+			virtual void SetAt(Int32 index, T value) override
 			{
 				storage[index] = value;
 			}
 
-			virtual void SetAt(Int32 index, T&& value)
-			{
-				storage[index] = value;
-			}
-
-			virtual void Insert(Int32 index, const T& value)
+			virtual void Insert(Int32 index, T value) override
 			{
 				storage.insert(storage.begin() + index, value);
 			}
 
-			virtual void Insert(Int32 index, T&& value)
-			{
-				storage.insert(storage.begin() + index, value);
-			}
-
-			virtual void RemoveAt(Int32 index)
+			virtual void RemoveAt(Int32 index) override
 			{
 				std::copy(storage.begin() + index + 1, storage.end(), storage.begin() + index);
 				storage.pop_back();

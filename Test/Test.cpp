@@ -186,9 +186,8 @@ namespace Test
 			TestAssertFalse(listOfStrings.Contains(L"Non existent item"), L"bad List Contains()");
 
 			listOfStrings.SetAt(0, L"Nueva cadena");
-			TestAssertEquals<String>(listOfStrings.GetAt(0), L"Nueva cadena", L"bad List SetAt()");
-			TestAssertEquals(listOfStrings.GetAt(0), listOfStrings[0], L"bad List SetAt()");
-
+			TestAssertEquals<String>(listOfStrings[0], L"Nueva cadena", L"bad List SetAt()");
+			
 			listOfStrings.Clear();
 			TestAssertEquals<Int32>(listOfStrings.GetCount(), 0, L"Bad List Clear()");
 		}
