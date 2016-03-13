@@ -144,30 +144,22 @@
     <ClCompile Include="ArgumentException.cpp" />
     <ClCompile Include="ArgumentOutOfRangeException.cpp" />
     <ClCompile Include="Boolean.cpp" />
-    <ClCompile Include="Byte.cpp" />
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Decimal.cpp" />
     <ClCompile Include="Double.cpp" />
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="Float.cpp" />
-    <ClCompile Include="Int16.cpp" />
-    <ClCompile Include="Int32.cpp" />
-    <ClCompile Include="Int64.cpp" />
     <ClCompile Include="InvalidOperationException.cpp" />
     <ClCompile Include="NotImplementedException.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OverflowException.cpp" />
-    <ClCompile Include="Sbyte.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="SystemException.cpp" />
-    <ClCompile Include="Type.cpp" />
-    <ClCompile Include="UInt16.cpp" />
-    <ClCompile Include="UInt32.cpp" />
-    <ClCompile Include="UInt64.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BCL.h" />
+    <ClInclude Include="BCLInternal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

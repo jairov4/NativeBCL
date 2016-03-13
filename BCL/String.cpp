@@ -1,42 +1,15 @@
 #include "BCL.h"
+#include "BCLInternal.h"
 
 namespace System
 {
 	using namespace std;
 
-	static wstring CharArrayToWstring(const char* str)
-	{
-		size_t len = strlen(str);
-		wchar_t* buffer = new wchar_t[len + 1];
-		size_t len2;
-		mbstowcs_s(&len2, buffer, len + 1, str, len + 1);
-		wstring strOut(buffer);
-		delete[] buffer;
-		return strOut;
-	}
-
-	String::String() : value(new_ref<wstring>())
+	String::String() : value(nullptr)
 	{
 	}
 
-	String::String(const wchar_t* str) : value(new_ref<wstring>(str))
-	{
-	}
-
-	String::String(const char* str) : value(new_ref<wstring>(CharArrayToWstring(str)))
-	{
-
-	}
-
-	String::String(const wstring& str) : value(new_ref<wstring>(str))
-	{
-	}
-		
-	String::String(wstring&& str) : value(new_ref<wstring>(str))
-	{
-	}
-
-	String::String(const String& str) : value(new_ref<wstring>(*str.value))
+	String::String(const String& str) : value(str.value)
 	{
 	}
 
@@ -44,59 +17,49 @@ namespace System
 	{
 	}
 
-	String::operator wstring() const
+	String::String(const u16string& str) : value(new_ref<u16string>(str))
 	{
-		return *value;
 	}
 
-	String& String::operator=(const String& b)
+	Int32 String::GetLength()
 	{
-		value = b.value;
-		return *this;
+		return this->value->size();
 	}
 
-	Int32 String::GetLength() const
+	Int32 String::CompareTo(String& b)
 	{
-		return int32_t(value->length());
+		return this->value->compare(*b.value);
 	}
 
-	Int32 String::CompareTo(const String& b) const
+	Boolean String::Equals(String& str)
 	{
-		return value->compare(*(b.value));
+		return CompareTo(str) == 0;
 	}
 
-	Boolean String::Equals(const String& str) const
+	Int32 String::GetHashCode() override
 	{
-		return *value == *(str.value);
+		auto buffer = static_cast<const uint8_t*>(value->c_str());
+		auto hash = HashSequence32(buffer, size);
+		return (Int32)hash;
 	}
 
-	Int32 String::GetHashCode() const
-	{
-		return int32_t(hash<wstring>()(*value));
-	}
-
-	const String& String::ToString() const
+	String String::ToString() override
 	{
 		return *this;
 	}
 
 	Boolean String::operator== (const String& b) const
 	{
-		return *value == *(b.value);
+		return Equals(b);
 	}
 
 	String String::operator+(const String& b) const
 	{
-		return String(*value + *b.value);
-	}
-
-	String String::operator+(const char* b) const
-	{
-		return String(*value + CharArrayToWstring(b));
-	}
-
-	String String::operator+(const wchar_t* b) const
-	{
-		return String(*value + b);
+		auto totalSize = size + b.size;
+		auto newBuffer = new char16_t[totalSize];
+		memcpy_s(&newBuffer[0], size, value, size);
+		memcpy_s(&newBuffer[size], b.size, b.value, b.size);
+		auto str = String(newBuffer, totalSize);
+		return str;
 	}
 }

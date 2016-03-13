@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
+#include <stdint.h>
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -15,7 +14,8 @@
 #endif
 
 namespace System
-{
+{	
+	struct Object;
 	struct Int16;
 	struct UInt16;
 	struct Int32;
@@ -24,79 +24,50 @@ namespace System
 	struct UInt64;
 	struct SByte;
 	struct Byte;
-	struct Boolean;
 	struct String;
-	struct DateTime;
-	struct TimeSpan;
-	struct Type;
-	class Exception;
-
+	struct String;
+	struct Boolean;
+	struct Exception;
+	
 	template <typename T>
 	using ref = std::shared_ptr<T>;
 
 	template<typename T, typename... TArgs>
 	inline ref<T> new_ref(TArgs&&... args) { return std::make_shared<T>(std::forward<TArgs>(args)...); }
 
-	BCLAPIOBJ struct Object
+	struct Object
 	{
 	public:
-		virtual String ToString() const;
-		virtual Int32 GetHashCode() const;
-		Type GetType() const;
 		virtual ~Object() = default;
+
+		virtual String ToString() = 0;
+		virtual Int32 GetHashCode() = 0;
+		virtual Boolean Equals(Object& obj) = 0;
 	};
 
-	BCLAPIOBJ struct Type final
+	struct String final : Object
 	{
 	private:
-		const type_info& info;
-	public:
-		Type(const type_info& info);
-		Type(const Type& info);
-
-		String GetName() const;
-		String ToString() const;
-		Int32 GetHashCode() const;
-
-		Boolean Equals(const Type& type) const;
-		Type GetType() const;
-
-		Boolean operator == (const Type& other) const;
-	};
-
-	BCLAPIOBJ struct String final
-	{
-	private:
-		ref<std::wstring> value;
+		ref<std::u16string> value;
 
 	public:
 		String();
-		String(const wchar_t* str);
-		String(const char* str);
-		String(const std::wstring& str);
-		String(std::wstring&& str);
 		String(const String& str);
 		String(String&& str);
+		String(const std::u16string& str);
 
-		Int32 GetLength() const;
+		Int32 GetLength();
+		Int32 CompareTo(String& b);
+		Boolean Equals(String& b);
 
-		Int32 CompareTo(const String& str) const;
-		Boolean Equals(const String& str) const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 
-		Int32 GetHashCode() const;
-		const String& ToString() const;
-		Type GetType() const;
-
-		operator std::wstring() const;
-		String& operator= (const String& b);
 		Boolean operator==(const String& b) const;
-
-		String operator+(const String& b) const;
-		String operator+(const char* b) const;
-		String operator+(const wchar_t* b) const;
 	};
 
-	BCLAPIOBJ struct SByte final
+	struct SByte final : Object
 	{
 	public:
 		typedef std::int8_t sbyte;
@@ -106,31 +77,24 @@ namespace System
 
 	private:
 		sbyte value;
+
 	public:
 		SByte();
 		SByte(sbyte value);
 		SByte(const SByte& copy);
 
 		operator sbyte() const;
-		SByte& operator=(sbyte v);
-		SByte& operator++();
-		SByte& operator--();
-		SByte operator++(int);
-		SByte operator--(int);
-		SByte& operator+=(const SByte& o);
-		SByte& operator-=(const SByte& o);
-		SByte& operator*=(const SByte& o);
-		SByte& operator/=(const SByte& o);
 
-		Int32 CompareTo(const SByte& obj) const;
-		Boolean Equals(const SByte& obj) const;
+		Int32 CompareTo(const Object& obj);
+		Int32 CompareTo(const SByte& obj);
+		Boolean Equals(const SByte& obj);
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Byte final
+	struct Byte final : public Object
 	{
 	public:
 		typedef std::uint8_t byte;
@@ -146,25 +110,17 @@ namespace System
 		Byte(const Byte& copy);
 
 		operator byte() const;
-		Byte& operator=(byte v);
-		Byte& operator++();
-		Byte& operator--();
-		Byte operator++(int);
-		Byte operator--(int);
-		Byte& operator+=(const Byte& o);
-		Byte& operator-=(const Byte& o);
-		Byte& operator*=(const Byte& o);
-		Byte& operator/=(const Byte& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Byte& obj) const;
 		Boolean Equals(const Byte& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Int16 final
+	struct Int16 final : public Object
 	{
 	public:
 		typedef std::int16_t int16;
@@ -180,25 +136,17 @@ namespace System
 		Int16(const Int16& copy);
 
 		operator int16() const;
-		Int16& operator=(int16 v);
-		Int16& operator++();
-		Int16& operator--();
-		Int16 operator++(int);
-		Int16 operator--(int);
-		Int16& operator+=(const Int16& o);
-		Int16& operator-=(const Int16& o);
-		Int16& operator*=(const Int16& o);
-		Int16& operator/=(const Int16& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int16& obj) const;
 		Boolean Equals(const Int16& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct UInt16 final
+	struct UInt16 final : public Object
 	{
 	public:
 		typedef std::uint16_t uint16;
@@ -214,25 +162,17 @@ namespace System
 		UInt16(const UInt16& copy);
 
 		operator uint16() const;
-		UInt16& operator=(uint16 v);
-		UInt16& operator++();
-		UInt16& operator--();
-		UInt16 operator++(int);
-		UInt16 operator--(int);
-		UInt16& operator+=(const UInt16& o);
-		UInt16& operator-=(const UInt16& o);
-		UInt16& operator*=(const UInt16& o);
-		UInt16& operator/=(const UInt16& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt16& obj) const;
 		Boolean Equals(const UInt16& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Int32 final
+	struct Int32 final : public Object
 	{
 	public:
 		typedef std::int32_t int32;
@@ -249,24 +189,17 @@ namespace System
 
 		operator int32() const;
 		Int32& operator= (int32 v);
-		Int32& operator++();
-		Int32& operator--();
-		Int32 operator++(int);
-		Int32 operator--(int);
-		Int32& operator+=(const Int32& o);
-		Int32& operator-=(const Int32& o);
-		Int32& operator*=(const Int32& o);
-		Int32& operator/=(const Int32& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int32& obj) const;
 		Boolean Equals(const Int32& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct UInt32 final
+	struct UInt32 final : public Object
 	{
 	public:
 		typedef std::uint32_t uint32;
@@ -282,25 +215,16 @@ namespace System
 
 		operator uint32() const;
 
-		UInt32& operator=(uint32 val);
-		UInt32& operator++();
-		UInt32& operator--();
-		UInt32 operator++(int);
-		UInt32 operator--(int);
-		UInt32& operator+=(const UInt32& o);
-		UInt32& operator-=(const UInt32& o);
-		UInt32& operator*=(const UInt32& o);
-		UInt32& operator/=(const UInt32& o);
-
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt32& obj) const;
 		Boolean Equals(const UInt32& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Int64 final
+	struct Int64 final : public Object
 	{
 	public:
 		typedef std::int64_t int64;
@@ -316,25 +240,17 @@ namespace System
 		Int64(const Int64& copy);
 
 		operator int64() const;
-		Int64& operator=(int64 val);
-		Int64& operator++();
-		Int64& operator--();
-		Int64 operator++(int);
-		Int64 operator--(int);
-		Int64& operator+=(const Int64& o);
-		Int64& operator-=(const Int64& o);
-		Int64& operator*=(const Int64& o);
-		Int64& operator/=(const Int64& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Int64& obj) const;
 		Boolean Equals(const Int64& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct UInt64 final
+	struct UInt64 final : public Object
 	{
 	public:
 		typedef std::uint64_t uint64;
@@ -350,114 +266,61 @@ namespace System
 		UInt64(const UInt64& copy);
 
 		operator uint64() const;
-		UInt64& operator=(uint64 val);
-		UInt64& operator++();
-		UInt64& operator--();
-		UInt64 operator++(int);
-		UInt64 operator--(int);
-		UInt64& operator+=(const UInt64& o);
-		UInt64& operator-=(const UInt64& o);
-		UInt64& operator*=(const UInt64& o);
-		UInt64& operator/=(const UInt64& o);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const UInt64& obj) const;
 		Boolean Equals(const UInt64& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Char final
+	struct Char final : public Object
 	{
-	public:
-	private:
 		char16_t value;
 	public:
 		Char();
 		Char(char16_t value);
 
 		operator char16_t() const;
-		Char& operator=(char16_t val);
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Float final
+	struct Float final : public Object
 	{
-	private:
 		float value;
 	public:
 		Float();
-		Float(const Float& copy);
 		Float(float value);
 
-		static const Float MinValue;
-		static const Float MaxValue;
-
-		static const Float Epsilon;
-		static const Float NegativeInfinity;
-		static const Float PositiveInfinity;
-		static const Float NaN;
-
 		operator float() const;
-		Float& operator=(float val);
-		Float& operator+=(const Float& o);
-		Float& operator-=(const Float& o);
-		Float& operator*=(const Float& o);
-		Float& operator/=(const Float& o);
 
-		static Boolean IsNaN(Float d);
-		static Boolean IsInfinity(Float d);
-
-		Int32 CompareTo(const Float& obj) const;
-		Boolean Equals(const Float& obj) const;
-
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Double final
+	struct Double final : public Object
 	{
-	private:
 		double value;
 	public:
 		Double();
-		Double(double_t value);
-		Double(const Double& copy);
+		Double(double value);
+		Double(const double& value);
 
-		static const Double MinValue;
-		static const Double MaxValue;
+		operator double() const;
 
-		static const Double Epsilon;
-		static const Double NegativeInfinity;
-		static const Double PositiveInfinity;
-		static const Double NaN;
-
-		operator double_t() const;
-		Double& operator=(double_t val);
-		Double& operator+=(const Double& o);
-		Double& operator-=(const Double& o);
-		Double& operator*=(const Double& o);
-		Double& operator/=(const Double& o);
-
-		static Boolean IsNaN(Double d);
-		static Boolean IsInfinity(Double d);
-
-		Int32 CompareTo(const Double& obj) const;
-		Boolean Equals(const Double& obj) const;
-
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Boolean final
+	struct Boolean final : public Object
 	{
-	private:
 		bool value;
 	public:
 		Boolean();
@@ -465,17 +328,17 @@ namespace System
 		Boolean(const Boolean& copy);
 
 		operator bool() const;
-		Boolean& operator=(bool val);
 
+		Int32 CompareTo(const Object& obj) const;
 		Int32 CompareTo(const Boolean& obj) const;
 		Boolean Equals(const Boolean& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct Decimal final
+	struct Decimal final : public Object
 	{
 	public:
 		static const Decimal One;
@@ -493,40 +356,29 @@ namespace System
 		Int32 mid;
 	public:
 		Decimal();
-		Decimal(const Decimal& copy);
-		
-		Decimal(Int32 i);
-		Decimal(Int64 i);
-		Decimal(Int16 i);
-		Decimal(SByte i);
-		Decimal(UInt32 i);
-		Decimal(UInt64 i);
-		Decimal(UInt16 i);
-		Decimal(Byte i);
-		Decimal(Float i);
-		Decimal(Double d);
-
+		Decimal(Decimal& copy);
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Int32 flags);
 		Decimal(Int32 lo, Int32 mid, Int32 hi, Boolean isNegative, Byte scale);
-		Decimal(Int64 p, Byte point);
-		Decimal(UInt64 p, Byte point);
+		Decimal::Decimal(Int64 p, Byte point);
+		Decimal::Decimal(UInt64 p, Byte point);
 
-		static Decimal Parse(const String& str);
-
-		Int32 CompareTo(const Decimal& obj) const;
+		Int32 CompareTo(const Object& obj) const;
+		Int32 CompareTo(const Boolean& obj) const;
 		Boolean Equals(const Decimal& obj) const;
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Type GetType() const;
+		static Decimal Add(const Decimal& a, const Decimal& b);
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ enum class DateTimeKind : uint8_t
+	BCLAPIOBJ enum struct DateTimeKind : uint8_t
 	{
 		Unspecified = 0, Utc = 1, Local = 2
 	};
 
-	BCLAPIOBJ enum class DayOfWeek : uint8_t
+	BCLAPIOBJ enum struct DayOfWeek : uint8_t
 	{
 		Sunday = 0,
 		Monday = 1,
@@ -537,17 +389,17 @@ namespace System
 		Saturday = 6,
 	};
 
-	BCLAPIOBJ struct DateTime final
+	BCLAPIOBJ struct DateTime final : Object
 	{
 	private:
 		UInt64 value;
 
-		Int64 GetInternalTicks() const;
-		UInt64 GetInternalKind() const;
+		Int64 GetInternalTicks();
+		UInt64 GetInternalKind();
 
-		Int32 GetDatePart(Int32 part) const;
+		Int32 GetDatePart(Int32 part);
 
-		DateTime Add(Double value, Int32 scale) const;
+		DateTime Add(Double value, Int32 scale);
 
 		DateTime(UInt64 t);
 		DateTime(Int64 ticks, DateTimeKind kind, Boolean isAmbiguousDst);
@@ -560,12 +412,12 @@ namespace System
 		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, Int32 millisecond);
 		DateTime(Int32 year, Int32 month, Int32 day, Int32 hour, Int32 minute, Int32 second, DateTimeKind kind);
 
-		Boolean operator>(const DateTime& ts) const;
-		Boolean operator<(const DateTime& ts) const;
-		Boolean operator>=(const DateTime& ts) const;
-		Boolean operator<=(const DateTime& ts) const;
-		Boolean operator==(const DateTime& ts) const;
-		Boolean operator!=(const DateTime& ts) const;
+		Boolean operator>(const DateTime& ts);
+		Boolean operator<(const DateTime& ts);
+		Boolean operator>=(const DateTime& ts);
+		Boolean operator<=(const DateTime& ts);
+		Boolean operator==(const DateTime& ts);
+		Boolean operator!=(const DateTime& ts);
 
 		static bool IsLeapYear(Int32 year);
 		static Int32 DaysInMonth(Int32 year, Int32 month);
@@ -576,41 +428,43 @@ namespace System
 		static const DateTime MinValue;
 		static const DateTime MaxValue;
 
-		DateTime operator+(const TimeSpan& value) const;
-		DateTime operator-(const TimeSpan& other) const;
+		DateTime operator+(const TimeSpan& value);
+		DateTime operator-(const TimeSpan& other);
 
-		DateTime AddTicks(Int64 value) const;
-		DateTime AddYears(Int32 value) const;
-		DateTime AddSeconds(Double value) const;
-		DateTime AddMonths(Int32 value) const;
-		DateTime AddMinutes(Double value) const;
-		DateTime AddMilliseconds(Double value) const;
-		DateTime AddHours(Double value) const;
-		DateTime AddDays(Double value) const;
-		DateTime Add(const TimeSpan& value) const;
-		DateTime Subtract(const TimeSpan& value) const;
+		DateTime AddTicks(Int64 value);
+		DateTime AddYears(Int32 value);
+		DateTime AddSeconds(Double value);
+		DateTime AddMonths(Int32 value);
+		DateTime AddMinutes(Double value);
+		DateTime AddMilliseconds(Double value);
+		DateTime AddHours(Double value);
+		DateTime AddDays(Double value);
+		DateTime Add(const TimeSpan& value);
+		DateTime Subtract(const TimeSpan& value);
 
-		Int32 GetDayOfYear() const;
-		DayOfWeek GetDayOfWeek() const;
-		Int32 GetDay() const;
-		Int32 GetMonth() const;
-		Int32 GetYear() const;
-		Int32 GetMillisecond() const;
-		Int32 GetSecond() const;
-		Int32 GetMinute() const;
-		Int32 GetHour() const;
-		Int64 GetTicks() const;
-		DateTime GetDate() const;
+		Int32 GetDayOfYear();
+		DayOfWeek GetDayOfWeek();
+		Int32 GetDay();
+		Int32 GetMonth();
+		Int32 GetYear();
+		Int32 GetMillisecond();
+		Int32 GetSecond();
+		Int32 GetMinute();
+		Int32 GetHour();
+		Int64 GetTicks();
+		DateTime GetDate();
 
-		DateTimeKind GetKind() const;
+		DateTimeKind GetKind();
 
-		Int32 CompareTo(const DateTime& value) const;
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Boolean Equals(const DateTime& obj) const;
+		Int32 CompareTo(const DateTime& value);
+		Boolean Equals(const DateTime& obj);
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct TimeSpan final
+	BCLAPIOBJ struct TimeSpan final : Object
 	{
 	private:
 		Int64 ticks;
@@ -629,49 +483,51 @@ namespace System
 		static TimeSpan FromHours(Double value);
 		static TimeSpan FromDays(Double value);
 
-		Int32 GetDays() const;
-		Int32 GetMilliseconds() const;
-		Int32 GetSeconds() const;
-		Int32 GetMinutes() const;
-		Int32 GetHours() const;
+		Int32 GetDays();
+		Int32 GetMilliseconds();
+		Int32 GetSeconds();
+		Int32 GetMinutes();
+		Int32 GetHours();
 
-		Int64 GetTicks() const;
+		Int64 GetTicks();
 
-		Double GetTotalDays() const;
-		Double GetTotalHours() const;
-		Double GetTotalSeconds() const;
-		Double GetTotalMinutes() const;
-		Double GetTotalMilliseconds() const;
+		Double GetTotalDays();
+		Double GetTotalHours();
+		Double GetTotalSeconds();
+		Double GetTotalMinutes();
+		Double GetTotalMilliseconds();
 
-		TimeSpan Duration() const;
-		TimeSpan Negate() const;
+		TimeSpan Duration();
+		TimeSpan Negate();
 
-		TimeSpan Add(const TimeSpan& ts) const;
-		TimeSpan Subtract(const TimeSpan& ts) const;
+		TimeSpan Add(const TimeSpan& ts);
+		TimeSpan Subtract(const TimeSpan& ts);
 
-		TimeSpan operator+(const TimeSpan& ts) const;
-		TimeSpan operator-(const TimeSpan& ts) const;
+		TimeSpan operator+(const TimeSpan& ts);
+		TimeSpan operator-(const TimeSpan& ts);
 
-		Boolean operator>(const TimeSpan& ts) const;
-		Boolean operator<(const TimeSpan& ts) const;
-		Boolean operator>=(const TimeSpan& ts) const;
-		Boolean operator<=(const TimeSpan& ts) const;
-		Boolean operator==(const TimeSpan& ts) const;
-		Boolean operator!=(const TimeSpan& ts) const;
+		Boolean operator>(const TimeSpan& ts);
+		Boolean operator<(const TimeSpan& ts);
+		Boolean operator>=(const TimeSpan& ts);
+		Boolean operator<=(const TimeSpan& ts);
+		Boolean operator==(const TimeSpan& ts);
+		Boolean operator!=(const TimeSpan& ts);
 
-		Int32 CompareTo(const TimeSpan& value) const;
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Boolean Equals(const TimeSpan& obj) const;
+		Int32 CompareTo(const TimeSpan& value);
+		Boolean Equals(const TimeSpan& obj);
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ struct DateTimeOffset final
+	BCLAPIOBJ struct DateTimeOffset final : Object
 	{
 	private:
 		DateTime dateTime;
 		Int16 offset;
 
-		DateTime GetClockDateTime() const;
+		DateTime GetClockDateTime();
 
 		DateTimeOffset(DateTime value, Int16 offset);
 
@@ -688,46 +544,48 @@ namespace System
 		static DateTimeOffset GetNow();
 		static DateTimeOffset GetUtcNow();
 
-		DateTimeOffset AddTicks(Int64 value) const;
-		DateTimeOffset AddYears(Int32 value) const;
-		DateTimeOffset AddSeconds(Double value) const;
-		DateTimeOffset AddMonths(Int32 value) const;
-		DateTimeOffset AddMinutes(Double value) const;
-		DateTimeOffset AddMilliseconds(Double value) const;
-		DateTimeOffset AddHours(Double value) const;
-		DateTimeOffset AddDays(Double value) const;
-		DateTimeOffset Add(const TimeSpan& value) const;
-		DateTimeOffset Subtract(const TimeSpan& value) const;
+		DateTimeOffset AddTicks(Int64 value);
+		DateTimeOffset AddYears(Int32 value);
+		DateTimeOffset AddSeconds(Double value);
+		DateTimeOffset AddMonths(Int32 value);
+		DateTimeOffset AddMinutes(Double value);
+		DateTimeOffset AddMilliseconds(Double value);
+		DateTimeOffset AddHours(Double value);
+		DateTimeOffset AddDays(Double value);
+		DateTimeOffset Add(const TimeSpan& value);
+		DateTimeOffset Subtract(const TimeSpan& value);
 
-		Int32 GetDayOfYear() const;
-		DayOfWeek GetDayOfWeek() const;
-		Int32 GetDay() const;
-		Int32 GetMonth() const;
-		Int32 GetYear() const;
-		Int32 GetMillisecond() const;
-		Int32 GetSecond() const;
-		Int32 GetMinute() const;
-		Int32 GetHour() const;
-		Int64 GetTicks() const;
-		Int64 GetUtcTicks() const;
-		DateTime GetDate() const;
-		TimeSpan GetOffset() const;
-		DateTime GetDateTime() const;
-		DateTime GetUtcDateTime() const;
+		Int32 GetDayOfYear();
+		DayOfWeek GetDayOfWeek();
+		Int32 GetDay();
+		Int32 GetMonth();
+		Int32 GetYear();
+		Int32 GetMillisecond();
+		Int32 GetSecond();
+		Int32 GetMinute();
+		Int32 GetHour();
+		Int64 GetTicks();
+		Int64 GetUtcTicks();
+		DateTime GetDate();
+		TimeSpan GetOffset();
+		DateTime GetDateTime();
+		DateTime GetUtcDateTime();
 
-		String ToString() const;
-		Int32 GetHashCode() const;
-		Boolean Equals(const DateTimeOffset& obj) const;
+		Boolean Equals(const DateTimeOffset& obj);
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
 	template<typename T>
-	class Nullable final : public Object
+	struct Nullable final : Object
 	{
+	private:
 		T value;
 		bool hasValue;
 
 	public:
-
 		bool HasValue() const
 		{
 			return hasValue;
@@ -753,9 +611,13 @@ namespace System
 		{
 			return hasValue == obj.hasValue ? (hasValue ? value == obj.value : true) : false;
 		}
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ class Exception : public Object
+	BCLAPIOBJ struct Exception : Object
 	{
 	private:
 		ref<Exception> innerException;
@@ -765,9 +627,13 @@ namespace System
 		Exception();
 		explicit Exception(String message);
 		Exception(String message, ref<Exception> innerException);
+
+		Int32 GetHashCode() override;
+		String ToString() override;
+		Boolean Equals(Object& obj) override;
 	};
 
-	BCLAPIOBJ class NotImplementedException : public Exception
+	BCLAPIOBJ struct NotImplementedException : public Exception
 	{
 	public:
 		NotImplementedException();
@@ -775,7 +641,7 @@ namespace System
 		NotImplementedException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ class InvalidOperationException : public Exception
+	BCLAPIOBJ struct InvalidOperationException : public Exception
 	{
 	public:
 		InvalidOperationException();
@@ -783,7 +649,7 @@ namespace System
 		InvalidOperationException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ class SystemException : public Exception
+	BCLAPIOBJ struct SystemException : public Exception
 	{
 	public:
 		SystemException();
@@ -791,7 +657,7 @@ namespace System
 		SystemException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ class OverflowException : public SystemException
+	BCLAPIOBJ struct OverflowException : public SystemException
 	{
 	public:
 		OverflowException();
@@ -799,7 +665,7 @@ namespace System
 		OverflowException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ class ArgumentException : public SystemException
+	BCLAPIOBJ struct ArgumentException : public SystemException
 	{
 	private:
 		String paramName;
@@ -811,7 +677,7 @@ namespace System
 		ArgumentException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ class ArgumentOutOfRangeException : public ArgumentException
+	BCLAPIOBJ struct ArgumentOutOfRangeException : public ArgumentException
 	{
 	public:
 		ArgumentOutOfRangeException();
@@ -822,83 +688,84 @@ namespace System
 
 	namespace Collections
 	{
-		class IEnumerator : public Object
+		struct IEnumerator : public Object
 		{
 		public:
 			virtual Boolean MoveNext() = 0;
 			virtual Boolean HasNext() = 0;
 		};
 
-		template<class T>
-		class IGenericEnumerator : public IEnumerator
+		template<typename T>
+		struct IGenericEnumerator : public IEnumerator
 		{
 		public:
 			virtual T GetCurrent() = 0;
 		};
 
-		class IEnumerable : public Object
+		struct IEnumerable : public Object
 		{
 		public:
 			virtual ref<IEnumerator> GetEnumerator() = 0;
 		};
-		
-		template<class T>
-		class IGenericEnumerable : public IEnumerable
+
+		template<struct T>
+		struct IGenericEnumerable : public IEnumerable
 		{
 		public:
 			virtual ref<IGenericEnumerator<T>> GetGenericEnumerator() = 0;
 		};
 
-		class IReadOnlyCollection : public IEnumerable
+		struct IReadOnlyCollection : public IEnumerable
 		{
 		public:
 			virtual Int32 GetCount() = 0;
 		};
 
-		template<class T>
-		class IGenericReadOnlyCollection : public IReadOnlyCollection, public IGenericEnumerable<T>
+		template<struct T>
+		struct IGenericReadOnlyCollection : public IReadOnlyCollection, public IGenericEnumerable<T>
 		{
 		public:
 			virtual Boolean Contains(T item) = 0;
 		};
 
-		class ICollection : public IReadOnlyCollection
+		struct ICollection : public IReadOnlyCollection
 		{
 		public:
 			virtual void Clear() = 0;
 		};
 
-		template<class T>
-		class IGenericCollection : public IGenericReadOnlyCollection<T>, public ICollection
+		template<struct T>
+		struct IGenericCollection : public IGenericReadOnlyCollection<T>, public ICollection
 		{
 		public:
-			virtual void Add(T item) = 0;
+			virtual void Add(const T& item) = 0;
+			virtual void Add(T&& item) = 0;
 			virtual void Remove(T item) = 0;
 		};
 
-		template<class T>
-		class IGenericIReadOnlyList : public IGenericReadOnlyCollection<T>
+		template<struct T>
+		struct IGenericIReadOnlyList : public IGenericReadOnlyCollection<T>
 		{
 			virtual T operator[] (Int32 index) = 0;
 			virtual Int32 IndexOf(T item) = 0;
 		};
 
-		class IList : public ICollection
+		struct IList : public ICollection
 		{
 		public:
 			virtual void RemoveAt(Int32 index) = 0;
 		};
 
-		template<class T>
-		class IGenericList : public IGenericIReadOnlyList<T>, public IGenericCollection<T>, public IList
+		template<struct T>
+		struct IGenericList : public IGenericIReadOnlyList<T>, public IGenericCollection<T>, public IList
 		{
 		public:
 			virtual void SetAt(Int32 index, T item) = 0;
 			virtual void Insert(Int32 index, T item) = 0;
 		};
 
-		template<class T>
-		class List : public IGenericList<T>
+		template<struct T>
+		struct List : public IGenericList<T>
 		{
 		private:
 			typedef std::vector<T> TVector;
@@ -944,10 +811,15 @@ namespace System
 			List(List<T>& cp) : storage(cp.storage)
 			{
 			}
-			
-			virtual void Add(T item) override
+
+			virtual void Add(const T& item) override
 			{
 				storage.push_back(item);
+			}
+
+			virtual void Add(T&& item) override
+			{
+				storage.push_back(std::forward<T>(item));
 			}
 
 			virtual void Clear() override
@@ -1021,7 +893,7 @@ namespace System
 			}
 		};
 
-		template<class TKey, class TValue>
+		template<struct TKey, struct TValue>
 		struct KeyValuePair final : public Object
 		{
 		private:
@@ -1040,12 +912,12 @@ namespace System
 			}
 		};
 
-		template<class TKey, class TValue>
-		class Dictionary : public Object
+		template<struct TKey, struct TValue>
+		struct Dictionary : public Object
 		{
 		private:
 
-			class KeyHasher
+			struct KeyHasher
 			{
 			public:
 				size_t operator()(const TKey& obj) const
@@ -1057,8 +929,8 @@ namespace System
 			typedef std::unordered_map<TKey, TValue, KeyHasher> Map;
 			typedef typename Map::iterator TMapIterator;
 			typedef KeyValuePair<TKey, TValue> TKeyValuePair;
-			
-			class KeysCollection final : public Object
+
+			struct KeysCollection final : public Object
 			{
 			private:
 				ref<Map> entries;
@@ -1111,7 +983,7 @@ namespace System
 				}
 			};
 
-			class ValuesCollection final : public Object
+			struct ValuesCollection final : public Object
 			{
 			private:
 				ref<Map> entries;
@@ -1295,7 +1167,7 @@ namespace System
 
 	namespace IO
 	{
-		BCLAPIOBJ enum class SeekOrigin : std::int8_t
+		BCLAPIOBJ enum struct SeekOrigin : std::int8_t
 		{
 			Begin = 0,
 			Current = 1,
@@ -1303,7 +1175,7 @@ namespace System
 		};
 
 
-		BCLAPIOBJ class IStream : public Object
+		BCLAPIOBJ struct IStream : public Object
 		{
 		public:
 			virtual Boolean CanRead() = 0;
@@ -1321,7 +1193,7 @@ namespace System
 			virtual Int64 Seek(Int64 offset, SeekOrigin origin) = 0;
 		};
 
-		BCLAPIOBJ class ITextReader : public Object
+		BCLAPIOBJ struct ITextReader : public Object
 		{
 		public:
 			virtual void Close() = 0;
@@ -1332,13 +1204,13 @@ namespace System
 			virtual String ReadLine() = 0;
 		};
 
-		BCLAPIOBJ class StreamReader : public virtual ITextReader
+		BCLAPIOBJ struct StreamReader : public virtual ITextReader
 		{
 
 		};
 	}
 
-	BCLAPIOBJ class Console
+	BCLAPIOBJ struct Console
 	{
 	public:
 		static ref<IO::ITextReader> GetIn()
