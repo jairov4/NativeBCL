@@ -15,7 +15,7 @@ namespace System
 	ArgumentOutOfRangeException::ArgumentOutOfRangeException(String message, ref<Exception> innerException) : ArgumentException(message, innerException)
 	{
 	}
-
+	
 	ArgumentOutOfRangeException::ArgumentOutOfRangeException(String param, String message) : ArgumentException(message, param)
 	{
 	}

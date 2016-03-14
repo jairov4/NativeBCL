@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <memory>
 #include <vector>
-#include <string>
 #include <unordered_map>
+#include <functional>
 
 #ifndef BCLAPI
 #define BCLAPI
@@ -118,12 +118,16 @@ namespace System
 		ArgumentException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct ArgumentOutOfRangeException : public ArgumentException
+	BCLAPIOBJ struct ArgumentOutOfRangeException : ArgumentException
 	{
 		ArgumentOutOfRangeException();
 		explicit ArgumentOutOfRangeException(String paramName);
 		ArgumentOutOfRangeException(String paramName, String message);
 		ArgumentOutOfRangeException(String message, ref<Exception> innerException);
+	};
+
+	BCLAPIOBJ interface INotifyPropertyChanged : Object
+	{
 	};
 
 	namespace Collections
@@ -243,17 +247,17 @@ namespace System
 			{
 			}
 
-			virtual void Add(T item) override
+			void Add(T item) override
 			{
 				storage.push_back(item);
 			}
 
-			virtual void Clear() override
+			void Clear() override
 			{
 				storage.clear();
 			}
 
-			virtual void Remove(T value) override
+			void Remove(T value) override
 			{
 				for (auto i = 0; i < storage.size(); i++)
 				{
@@ -270,44 +274,44 @@ namespace System
 				return int32_t(storage.capacity());
 			}
 
-			virtual int32_t GetCount() override
+			int32_t GetCount() override
 			{
 				return int32_t(storage.size());
 			}
 
-			virtual bool Contains(T value) override
+			bool Contains(T value) override
 			{
 				return std::find(storage.begin(), storage.end(), value) != storage.end();
 			}
 
-			virtual T operator[] (int32_t index) override
+			T operator[] (int32_t index) override
 			{
 				return storage[index];
 			}
 
-			virtual T GetAt(int32_t index) override
+			T GetAt(int32_t index) override
 			{
 				return storage[index];
 			}
 
-			virtual int32_t IndexOf(T value) override
+			int32_t IndexOf(T value) override
 			{
 				auto it = std::find(storage.begin(), storage.end(), value);
 				if (it == storage.end()) return -1;
 				return int32_t(it - storage.begin());
 			}
 
-			virtual void SetAt(int32_t index, T value) override
+			void SetAt(int32_t index, T value) override
 			{
 				storage[index] = value;
 			}
 
-			virtual void Insert(int32_t index, T value) override
+			void Insert(int32_t index, T value) override
 			{
 				storage.insert(storage.begin() + index, value);
 			}
 
-			virtual void RemoveAt(int32_t index) override
+			void RemoveAt(int32_t index) override
 			{
 				std::copy(storage.begin() + index + 1, storage.end(), storage.begin() + index);
 				storage.pop_back();
@@ -580,6 +584,54 @@ namespace System
 					}
 				}
 				return false;
+			}
+		};
+	}
+
+	namespace Windows
+	{
+		struct DependencyObject;
+
+		struct IDependencyPropertyPublicDescriptor : Object
+		{
+			virtual ~IDependencyPropertyPublicDescriptor() = default;
+
+			virtual type_info GetOwner() = 0;
+			virtual type_info GetPropertyType() = 0;
+			virtual String GetName() = 0;
+			virtual void GetValue(ref<DependencyObject> owner, void* out_value) = 0;
+			virtual bool HasSetter() = 0;
+		};
+
+		struct IDependencyPropertyPrivateDescriptor : IDependencyPropertyPublicDescriptor
+		{
+			virtual ~IDependencyPropertyPrivateDescriptor() = default;
+
+			virtual void SetValue(ref<void*> owner, void* value) = 0;
+		};
+
+		template<typename TOwner, typename T>
+		struct IDependencyPropertyPublicDescriptorSpecialized : IDependencyPropertyPublicDescriptor
+		{
+			void GetValue(ref<DependencyObject> owner, void* out_value) override = delete;
+			virtual T GetValue(ref<TOwner> owner) = 0;
+		};
+
+		template<typename TOwner, typename T>
+		struct IDependencyPropertyPrivateDescriptorSpecialized : IDependencyPropertyPrivateDescriptor
+		{
+			void SetValue(ref<void*> owner, void* value) override = delete;
+			virtual void SetValue(ref<TOwner> owner, T value) = 0;
+		};
+
+		struct DependencyObject : INotifyPropertyChanged
+		{
+		protected:
+			void SetValue(ref<IDependencyPropertyPrivateDescriptor> property);
+
+			template<typename TOwner, typename T>
+			static ref<IDependencyPropertyPrivateDescriptorSpecialized<TOwner, T>> RegisterProperty(String name, T initial_value, std::function<void(void)> onPropertyChanged)
+			{
 			}
 		};
 	}
