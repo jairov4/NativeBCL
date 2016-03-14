@@ -2,7 +2,7 @@
 
 namespace System
 {
-	static const String baseMessage = "";
+	static const String baseMessage = u"";
 
 	ArgumentOutOfRangeException::ArgumentOutOfRangeException()
 	{

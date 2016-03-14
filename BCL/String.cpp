@@ -51,16 +51,22 @@ namespace System
 		return *this;
 	}
 
-    bool String::Equals(const Object& obj) const
-    {
-        auto str = dynamic_cast<const String*>(&obj);
-        if (str == nullptr) 
-        {
-            return false;
-        }
+	bool String::Equals(const Object& obj) const
+	{
+		auto str = dynamic_cast<const String*>(&obj);
+		if (str == nullptr)
+		{
+			return false;
+		}
 
-        return Equals(*str);
-    }
+		return Equals(*str);
+	}
+
+	String& String::operator=(const String& b)
+	{
+		this->value = b.value;
+		return *this;
+	}
 
 	bool String::operator== (const String& b) const
 	{
@@ -72,8 +78,8 @@ namespace System
 		return String(*value + *b.value);
 	}
 
-    String::operator std::u16string() const
-    {
-        return *value;
-    }
+	String::operator std::u16string() const
+	{
+		return *value;
+	}
 }

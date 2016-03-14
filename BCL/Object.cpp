@@ -1,23 +1,35 @@
 #include "BCL.h"
-#include <locale>
-#include <codecvt>
+#include <cuchar>
 
 namespace System
 {
 	using namespace std;
 
-	template <typename T>
-	void fromUTF8(const string& source, basic_string<T, char_traits<T>, allocator<T>>& result)
+	u16string string_to_u16string(const string& str)
 	{
-		wstring_convert<codecvt_utf8_utf16<T>, T> convertor;
-		result = convertor.from_bytes(source);
+		u16string result;
+		auto ptr = str.data();
+		auto end = str.data() + str.size();
+		char16_t c16;
+		mbstate_t state {};
+		while (auto rc = mbrtoc16(&c16, ptr, end - ptr, &state))
+		{
+			if (rc <= 0) 
+			{
+				break;
+			}
+
+			result.push_back(c16);
+			ptr += rc;
+		}
+
+		return result;
 	}
 
 	String Object::ToString() const
 	{
 		auto str = string(typeid(*this).name());
-		u16string res;
-		fromUTF8(str, res);
+		auto res = string_to_u16string(str);
 		return res;
 	}
 

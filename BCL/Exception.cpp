@@ -2,7 +2,7 @@
 
 namespace System
 {
-	Exception::Exception() : innerException(nullptr), message("")
+	Exception::Exception() : innerException(nullptr), message(u"")
 	{
 	}
 

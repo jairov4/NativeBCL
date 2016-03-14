@@ -9,7 +9,12 @@
 
 #include <stdio.h>
 #include <tchar.h>
-
+#include <string>
+#include <list>
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <memory>
 
 
 // TODO: mencionar aquí los encabezados adicionales que el programa necesita
