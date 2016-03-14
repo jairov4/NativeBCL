@@ -21,45 +21,55 @@ namespace System
 	{
 	}
 
-	Int32 String::GetLength()
+	int32_t String::GetLength()
 	{
 		return this->value->size();
 	}
 
-	Int32 String::CompareTo(String& b)
+	int32_t String::CompareTo(String& b)
 	{
 		return this->value->compare(*b.value);
 	}
 
-	Boolean String::Equals(String& str)
+	bool String::Equals(String& str)
 	{
 		return CompareTo(str) == 0;
 	}
 
-	Int32 String::GetHashCode() override
+	uint32_t String::GetHashCode()
 	{
-		auto buffer = static_cast<const uint8_t*>(value->c_str());
-		auto hash = HashSequence32(buffer, size);
-		return (Int32)hash;
+		auto hash = HashSequence32((const uint8_t*)value->c_str(), value->size());
+		return hash;
 	}
 
-	String String::ToString() override
+	String String::ToString()
 	{
 		return *this;
 	}
 
-	Boolean String::operator== (const String& b) const
+    bool String::Equals(Object& obj)
+    {
+        auto str = dynamic_cast<String*>(&obj);
+        if (str == nullptr) 
+        {
+            return false;
+        }
+
+        return Equals(*str);
+    }
+
+	bool String::operator== (String& b)
 	{
 		return Equals(b);
 	}
 
-	String String::operator+(const String& b) const
+	String String::operator+(String& b)
 	{
-		auto totalSize = size + b.size;
-		auto newBuffer = new char16_t[totalSize];
-		memcpy_s(&newBuffer[0], size, value, size);
-		memcpy_s(&newBuffer[size], b.size, b.value, b.size);
-		auto str = String(newBuffer, totalSize);
-		return str;
+		return String(*value + *b.value);
 	}
+
+    String::operator std::u16string()
+    {
+        return *value;
+    }
 }

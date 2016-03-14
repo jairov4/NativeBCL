@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <memory>
 #include <vector>
+#include <string>
 #include <unordered_map>
 
 #ifndef BCLAPI
@@ -12,6 +13,8 @@
 #ifndef BCLAPIOBJ
 #define BCLAPIOBJ
 #endif
+
+#define interface __declspec(novtable) struct
 
 namespace System
 {	
@@ -39,10 +42,10 @@ namespace System
 	{
 	public:
 		virtual ~Object() = default;
-
-		virtual String ToString() = 0;
-		virtual Int32 GetHashCode() = 0;
-		virtual Boolean Equals(Object& obj) = 0;
+        		
+		virtual uint32_t GetHashCode();
+        virtual String ToString();
+		virtual bool Equals(Object& obj);
 	};
 
 	struct String final : Object
@@ -56,21 +59,23 @@ namespace System
 		String(String&& str);
 		String(const std::u16string& str);
 
-		Int32 GetLength();
-		Int32 CompareTo(String& b);
-		Boolean Equals(String& b);
+		int32_t GetLength();
+		int32_t CompareTo(String& b);
+		bool Equals(String& b);
 
-		Int32 GetHashCode() override;
+		uint32_t GetHashCode() override;
 		String ToString() override;
-		Boolean Equals(Object& obj) override;
+        bool Equals(Object& b) override;
 
-		Boolean operator==(const String& b) const;
+		bool operator==(String& b);
+        String operator+(String& right);
+        operator std::u16string();
 	};
-
+    
 	struct SByte final : Object
 	{
 	public:
-		typedef std::int8_t sbyte;
+		typedef int8_t sbyte;
 
 		static const SByte MaxValue;
 		static const SByte MinValue;
@@ -83,17 +88,13 @@ namespace System
 		SByte(sbyte value);
 		SByte(const SByte& copy);
 
-		operator sbyte() const;
+		operator sbyte();
 
-		Int32 CompareTo(const Object& obj);
-		Int32 CompareTo(const SByte& obj);
-		Boolean Equals(const SByte& obj);
-
-		Int32 GetHashCode() override;
-		String ToString() override;
-		Boolean Equals(Object& obj) override;
+		virtual uint32_t GetHashCode() override;
+		virtual String ToString() override;
 	};
 
+    /*
 	struct Byte final : public Object
 	{
 	public:
@@ -616,6 +617,7 @@ namespace System
 		String ToString() override;
 		Boolean Equals(Object& obj) override;
 	};
+    */
 
 	BCLAPIOBJ struct Exception : Object
 	{
@@ -627,10 +629,6 @@ namespace System
 		Exception();
 		explicit Exception(String message);
 		Exception(String message, ref<Exception> innerException);
-
-		Int32 GetHashCode() override;
-		String ToString() override;
-		Boolean Equals(Object& obj) override;
 	};
 
 	BCLAPIOBJ struct NotImplementedException : public Exception
@@ -688,76 +686,75 @@ namespace System
 
 	namespace Collections
 	{
-		struct IEnumerator : public Object
+        interface IEnumerator : public Object
 		{
 		public:
-			virtual Boolean MoveNext() = 0;
-			virtual Boolean HasNext() = 0;
+			virtual bool MoveNext() = 0;
+			virtual bool HasNext() = 0;
 		};
 
 		template<typename T>
-		struct IGenericEnumerator : public IEnumerator
+        interface IGenericEnumerator : IEnumerator
 		{
 		public:
 			virtual T GetCurrent() = 0;
 		};
 
-		struct IEnumerable : public Object
+		interface IEnumerable : Object
 		{
 		public:
 			virtual ref<IEnumerator> GetEnumerator() = 0;
 		};
 
 		template<struct T>
-		struct IGenericEnumerable : public IEnumerable
+        interface IGenericEnumerable : IEnumerable
 		{
 		public:
 			virtual ref<IGenericEnumerator<T>> GetGenericEnumerator() = 0;
 		};
 
-		struct IReadOnlyCollection : public IEnumerable
+		interface IReadOnlyCollection : IEnumerable
 		{
 		public:
-			virtual Int32 GetCount() = 0;
-		};
+			virtual int32_t GetCount() = 0;
+        };
 
 		template<struct T>
-		struct IGenericReadOnlyCollection : public IReadOnlyCollection, public IGenericEnumerable<T>
+        interface IGenericReadOnlyCollection : IReadOnlyCollection, IGenericEnumerable<T>
 		{
 		public:
-			virtual Boolean Contains(T item) = 0;
+			virtual bool Contains(T item) = 0;
 		};
 
-		struct ICollection : public IReadOnlyCollection
+        interface ICollection : IReadOnlyCollection
 		{
 		public:
 			virtual void Clear() = 0;
 		};
 
 		template<struct T>
-		struct IGenericCollection : public IGenericReadOnlyCollection<T>, public ICollection
+        interface IGenericCollection : IGenericReadOnlyCollection<T>, ICollection
 		{
 		public:
-			virtual void Add(const T& item) = 0;
-			virtual void Add(T&& item) = 0;
+			virtual void Add(T item) = 0;
 			virtual void Remove(T item) = 0;
 		};
 
 		template<struct T>
-		struct IGenericIReadOnlyList : public IGenericReadOnlyCollection<T>
+        interface IGenericIReadOnlyList : IGenericReadOnlyCollection<T>
 		{
-			virtual T operator[] (Int32 index) = 0;
-			virtual Int32 IndexOf(T item) = 0;
+			virtual T operator[] (int32_t index) = 0;
+			virtual int32_t IndexOf(T item) = 0;
 		};
 
-		struct IList : public ICollection
+        interface IList : public ICollection
 		{
 		public:
 			virtual void RemoveAt(Int32 index) = 0;
 		};
 
 		template<struct T>
-		struct IGenericList : public IGenericIReadOnlyList<T>, public IGenericCollection<T>, public IList
+        interface IGenericList : IGenericIReadOnlyList<T>, IGenericCollection<T>, IList
 		{
 		public:
 			virtual void SetAt(Int32 index, T item) = 0;
@@ -765,7 +762,7 @@ namespace System
 		};
 
 		template<struct T>
-		struct List : public IGenericList<T>
+		struct List : IGenericList<T>
 		{
 		private:
 			typedef std::vector<T> TVector;
@@ -839,44 +836,44 @@ namespace System
 				}
 			}
 
-			virtual Int32 GetCapacity()
+			virtual int32_t GetCapacity()
 			{
 				return int32_t(storage.capacity());
 			}
 
-			virtual Int32 GetCount() override
+			virtual int32_t GetCount() override
 			{
 				return int32_t(storage.size());
 			}
 
-			virtual Boolean Contains(T value) override
+			virtual bool Contains(T value) override
 			{
 				return std::find(storage.begin(), storage.end(), value) != storage.end();
 			}
 
-			virtual T operator[] (Int32 index) override
+			virtual T operator[] (int32_t index) override
 			{
 				return storage[index];
 			}
 
-			virtual Int32 IndexOf(T value) override
+			virtual int32_t IndexOf(T value) override
 			{
 				auto it = std::find(storage.begin(), storage.end(), value);
 				if (it == storage.end()) return -1;
 				return int32_t(it - storage.begin());
 			}
 
-			virtual void SetAt(Int32 index, T value) override
+			virtual void SetAt(int32_t index, T value) override
 			{
 				storage[index] = value;
 			}
 
-			virtual void Insert(Int32 index, T value) override
+			virtual void Insert(int32_t index, T value) override
 			{
 				storage.insert(storage.begin() + index, value);
 			}
 
-			virtual void RemoveAt(Int32 index) override
+			virtual void RemoveAt(int32_t index) override
 			{
 				std::copy(storage.begin() + index + 1, storage.end(), storage.begin() + index);
 				storage.pop_back();
@@ -903,11 +900,11 @@ namespace System
 		public:
 			KeyValuePair(TKey k, TValue v) : Key(k), Value(v) {}
 
-			const TKey& GetKey() const { return Key; }
-			const TValue& GetValue() const { return Value; }
+			TKey GetKey() { return Key; }
+			TValue GetValue() { return Value; }
 
-			Boolean Equals(const KeyValuePair<TKey, TValue>& obj) const
-			{
+			bool Equals(KeyValuePair<TKey, TValue>& obj) 
+            {
 				return Key == obj.Key && Value == obj.Value;
 			}
 		};
@@ -1175,7 +1172,7 @@ namespace System
 		};
 
 
-		BCLAPIOBJ struct IStream : public Object
+		BCLAPIOBJ struct IStream : Object
 		{
 		public:
 			virtual Boolean CanRead() = 0;
@@ -1193,20 +1190,19 @@ namespace System
 			virtual Int64 Seek(Int64 offset, SeekOrigin origin) = 0;
 		};
 
-		BCLAPIOBJ struct ITextReader : public Object
+		BCLAPIOBJ struct ITextReader : Object
 		{
 		public:
 			virtual void Close() = 0;
 			virtual Int32 Peek() = 0;
 			virtual Int32 Read() = 0;
-			virtual Int32 Read(Char* buffer, Int32 index, Int32 count) = 0;
+			virtual Int32 Read(char16_t* buffer, int32_t index, int32_t count) = 0;
 			virtual String ReadToEnd() = 0;
 			virtual String ReadLine() = 0;
 		};
 
-		BCLAPIOBJ struct StreamReader : public virtual ITextReader
+		BCLAPIOBJ struct StreamReader : ITextReader
 		{
-
 		};
 	}
 

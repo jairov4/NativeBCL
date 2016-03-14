@@ -24,6 +24,11 @@ namespace System
 		return StringtoU16(typeid(*this).name());
 	}
 
+    bool Object::Equals(Object & obj)
+    {
+        return this == &obj;
+    }
+
 	Int32 Object::GetHashCode() override
 	{
 		return reinterpret_cast<intptr_t>(this) & 0xFFFFFFFF;

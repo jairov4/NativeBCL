@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="ArgumentException.cpp" />
     <ClCompile Include="ArgumentOutOfRangeException.cpp" />
+    <ClCompile Include="BCL.cpp" />
     <ClCompile Include="Boolean.cpp" />
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="DateTime.cpp" />

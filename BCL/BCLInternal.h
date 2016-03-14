@@ -4,7 +4,7 @@
 
 namespace System
 {
-	inline UInt32 HashSequence64(const uint8_t* buffer, UInt64 count)
+	inline uint32_t HashSequence64(const uint8_t* buffer, uint64_t count)
 	{
 		const auto fnv_offset_basis = 14695981039346656037ULL;
 		const auto fnv_prime = 1099511628211ULL;
@@ -20,7 +20,7 @@ namespace System
 		return val;
 	}
 
-	inline UInt32 HashSequence32(const uint8_t* buffer, UInt64 count)
+	inline uint32_t HashSequence32(const uint8_t* buffer, uint64_t count)
 	{
 		const auto fnv_offset_basis = 2166136261U;
 		const auto fnv_prime = 16777619U;
