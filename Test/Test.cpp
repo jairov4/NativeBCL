@@ -53,16 +53,16 @@ namespace Test
 			T i = a / b;
 			T j = b / a;
 
-			TestAssertTrue(a.Equals(2), String(L"Bad ") + typeName + " assigment or Equals");
-			TestAssertTrue(b.Equals(3), String(L"Bad ") + typeName + " assigment or Equals");
-			TestAssertTrue(c.Equals(5), String(L"Bad ") + typeName + " addition");
-			TestAssertTrue(d.Equals(7), String(L"Bad ") + typeName + " addition");
-			TestAssertTrue(e.Equals(1), String(L"Bad ") + typeName + " subtract");
-			TestAssertTrue(f.Equals(1), String(L"Bad ") + typeName + " subtract");
-			TestAssertTrue(g.Equals(T::MaxValue), String(L"Bad") + typeName + " subtract");
-			TestAssertTrue(h.Equals(6), String(L"Bad ") + typeName + " multiply");
-			TestAssertTrue(i.Equals(0), String(L"Bad ") + typeName + " divide");
-			TestAssertTrue(j.Equals(1), String(L"Bad ") + typeName + " divide");
+			TestAssertTrue(a.Equals(2), String(u"Bad ") + typeName + u" assigment or Equals");
+			TestAssertTrue(b.Equals(3), String(u"Bad ") + typeName + u" assigment or Equals");
+			TestAssertTrue(c.Equals(5), String(u"Bad ") + typeName + u" addition");
+			TestAssertTrue(d.Equals(7), String(u"Bad ") + typeName + u" addition");
+			TestAssertTrue(e.Equals(1), String(u"Bad ") + typeName + u" subtract");
+			TestAssertTrue(f.Equals(1), String(u"Bad ") + typeName + u" subtract");
+			TestAssertTrue(g.Equals(T::MaxValue), String(L"Bad") + typeName + u" subtract");
+			TestAssertTrue(h.Equals(6), String(u"Bad ") + typeName + u" multiply");
+			TestAssertTrue(i.Equals(0), String(u"Bad ") + typeName + u" divide");
+			TestAssertTrue(j.Equals(1), String(u"Bad ") + typeName + u" divide");
 
 			T ii = 10;
 			T jj = ii++;
@@ -155,7 +155,7 @@ namespace Test
 
 		void TestString()
 		{
-			String str(L"Hola mundo");
+			String str(u"Hola mundo");
 			printf("%d", int32_t(str.GetLength()));
 		}
 	};

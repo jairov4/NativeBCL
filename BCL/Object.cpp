@@ -1,35 +1,32 @@
 #include "BCL.h"
+#include <locale>
+#include <codecvt>
 
 namespace System
-{	
-	#include <stdint.h>
-	#include <cuchar>
-	#include <string>
+{
+	using namespace std;
 
-	static std::u16string StringtoU16(std::string str)
+	template <typename T>
+	void fromUTF8(const string& source, basic_string<T, char_traits<T>, allocator<T>>& result)
 	{
-		const size_t si = strlen(str.c_str());
-		char16_t cstr[si + 1];
-		memset(cstr, 0, (si + 1)*sizeof(char16_t));
-		const char* constSTR = str.c_str();
-		mbstate_t mbs;
-		memset(&mbs, 0, sizeof(mbs));//set shift state to the initial state
-		size_t ret = mbrtoc16(cstr, constSTR, si, &mbs);
-		std::u16string wstr(cstr);
-		return wstr;
+		wstring_convert<codecvt_utf8_utf16<T>, T> convertor;
+		result = convertor.from_bytes(source);
 	}
 
-	String Object::ToString() override
+	String Object::ToString() const
 	{
-		return StringtoU16(typeid(*this).name());
+		auto str = string(typeid(*this).name());
+		u16string res;
+		fromUTF8(str, res);
+		return res;
 	}
 
-    bool Object::Equals(Object & obj)
-    {
-        return this == &obj;
-    }
+	bool Object::Equals(const Object & obj) const
+	{
+		return this == &obj;
+	}
 
-	Int32 Object::GetHashCode() override
+	uint32_t Object::GetHashCode() const
 	{
 		return reinterpret_cast<intptr_t>(this) & 0xFFFFFFFF;
 	}

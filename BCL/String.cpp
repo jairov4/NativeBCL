@@ -21,35 +21,39 @@ namespace System
 	{
 	}
 
-	int32_t String::GetLength()
+	String::String(const char16_t* str) : value(new_ref<u16string>(str))
 	{
-		return this->value->size();
 	}
 
-	int32_t String::CompareTo(String& b)
+	int32_t String::GetLength() const
+	{
+		return int32_t(this->value->size());
+	}
+
+	int32_t String::CompareTo(const String& b) const
 	{
 		return this->value->compare(*b.value);
 	}
 
-	bool String::Equals(String& str)
+	bool String::Equals(const String& str) const
 	{
 		return CompareTo(str) == 0;
 	}
 
-	uint32_t String::GetHashCode()
+	uint32_t String::GetHashCode() const
 	{
-		auto hash = HashSequence32((const uint8_t*)value->c_str(), value->size());
+		auto hash = HashSequence32(reinterpret_cast<const uint8_t*>(value->c_str()), value->size() * sizeof(char16_t));
 		return hash;
 	}
 
-	String String::ToString()
+	String String::ToString() const
 	{
 		return *this;
 	}
 
-    bool String::Equals(Object& obj)
+    bool String::Equals(const Object& obj) const
     {
-        auto str = dynamic_cast<String*>(&obj);
+        auto str = dynamic_cast<const String*>(&obj);
         if (str == nullptr) 
         {
             return false;
@@ -58,17 +62,17 @@ namespace System
         return Equals(*str);
     }
 
-	bool String::operator== (String& b)
+	bool String::operator== (const String& b) const
 	{
 		return Equals(b);
 	}
 
-	String String::operator+(String& b)
+	String String::operator+(const String& b) const
 	{
 		return String(*value + *b.value);
 	}
 
-    String::operator std::u16string()
+    String::operator std::u16string() const
     {
         return *value;
     }

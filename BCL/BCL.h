@@ -14,7 +14,7 @@
 #define BCLAPIOBJ
 #endif
 
-#define interface __declspec(novtable) struct
+#define interface struct
 
 namespace System
 {	
@@ -28,7 +28,6 @@ namespace System
 	struct SByte;
 	struct Byte;
 	struct String;
-	struct String;
 	struct Boolean;
 	struct Exception;
 	
@@ -40,12 +39,11 @@ namespace System
 
 	struct Object
 	{
-	public:
 		virtual ~Object() = default;
         		
-		virtual uint32_t GetHashCode();
-        virtual String ToString();
-		virtual bool Equals(Object& obj);
+		virtual uint32_t GetHashCode() const;
+        virtual String ToString() const;
+		virtual bool Equals(const Object& obj) const;
 	};
 
 	struct String final : Object
@@ -57,19 +55,22 @@ namespace System
 		String();
 		String(const String& str);
 		String(String&& str);
+		String(const char16_t* str);
 		String(const std::u16string& str);
 
-		int32_t GetLength();
-		int32_t CompareTo(String& b);
-		bool Equals(String& b);
+		int32_t GetLength() const;
+		int32_t CompareTo(const String& b) const;
+		bool Equals(const String& b) const;
 
-		uint32_t GetHashCode() override;
-		String ToString() override;
-        bool Equals(Object& b) override;
+		// Object impl
+		uint32_t GetHashCode() const override;
+		String ToString() const override;
+		bool Equals(const Object& b) const override;
 
-		bool operator==(String& b);
-        String operator+(String& right);
-        operator std::u16string();
+		// operators
+		bool operator==(const String& b) const;
+		String operator+(const String& right) const;
+		operator std::u16string() const;
 	};
     
 	struct SByte final : Object
@@ -87,15 +88,15 @@ namespace System
 		SByte();
 		SByte(sbyte value);
 		SByte(const SByte& copy);
+		
+		// Object impl
+		uint32_t GetHashCode() const override;
 
-		operator sbyte();
-
-		virtual uint32_t GetHashCode() override;
-		virtual String ToString() override;
+		// operators
+		operator sbyte() const;
 	};
 
-    /*
-	struct Byte final : public Object
+	struct Byte final : Object
 	{
 	public:
 		typedef std::uint8_t byte;
@@ -110,17 +111,13 @@ namespace System
 		Byte(byte value);
 		Byte(const Byte& copy);
 
+		// Object impl
+		uint32_t GetHashCode() const override;
+
+		// operators
 		operator byte() const;
-
-		Int32 CompareTo(const Object& obj) const;
-		Int32 CompareTo(const Byte& obj) const;
-		Boolean Equals(const Byte& obj) const;
-
-		Int32 GetHashCode() override;
-		String ToString() override;
-		Boolean Equals(Object& obj) override;
 	};
-
+	/*
 	struct Int16 final : public Object
 	{
 	public:
@@ -631,42 +628,39 @@ namespace System
 		Exception(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct NotImplementedException : public Exception
+	BCLAPIOBJ struct NotImplementedException : Exception
 	{
-	public:
 		NotImplementedException();
 		explicit NotImplementedException(String message);
 		NotImplementedException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct InvalidOperationException : public Exception
+	BCLAPIOBJ struct InvalidOperationException : Exception
 	{
-	public:
 		InvalidOperationException();
 		explicit InvalidOperationException(String message);
 		InvalidOperationException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct SystemException : public Exception
+	BCLAPIOBJ struct SystemException : Exception
 	{
-	public:
 		SystemException();
 		explicit SystemException(String message);
 		SystemException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct OverflowException : public SystemException
+	BCLAPIOBJ struct OverflowException : SystemException
 	{
-	public:
 		OverflowException();
 		explicit OverflowException(String message);
 		OverflowException(String message, ref<Exception> innerException);
 	};
 
-	BCLAPIOBJ struct ArgumentException : public SystemException
+	BCLAPIOBJ struct ArgumentException : SystemException
 	{
 	private:
 		String paramName;
+
 	public:
 		ArgumentException();
 		explicit ArgumentException(String message);
@@ -677,7 +671,6 @@ namespace System
 
 	BCLAPIOBJ struct ArgumentOutOfRangeException : public ArgumentException
 	{
-	public:
 		ArgumentOutOfRangeException();
 		explicit ArgumentOutOfRangeException(String paramName);
 		ArgumentOutOfRangeException(String paramName, String message);
@@ -686,82 +679,71 @@ namespace System
 
 	namespace Collections
 	{
-        interface IEnumerator : public Object
+        interface IEnumerator : Object
 		{
-		public:
 			virtual bool MoveNext() = 0;
-			virtual bool HasNext() = 0;
 		};
 
 		template<typename T>
         interface IGenericEnumerator : IEnumerator
 		{
-		public:
 			virtual T GetCurrent() = 0;
 		};
 
 		interface IEnumerable : Object
 		{
-		public:
 			virtual ref<IEnumerator> GetEnumerator() = 0;
 		};
 
-		template<struct T>
+		template<typename T>
         interface IGenericEnumerable : IEnumerable
 		{
-		public:
 			virtual ref<IGenericEnumerator<T>> GetGenericEnumerator() = 0;
 		};
 
 		interface IReadOnlyCollection : IEnumerable
 		{
-		public:
 			virtual int32_t GetCount() = 0;
         };
 
-		template<struct T>
+		template<typename T>
         interface IGenericReadOnlyCollection : IReadOnlyCollection, IGenericEnumerable<T>
 		{
-		public:
 			virtual bool Contains(T item) = 0;
 		};
 
         interface ICollection : IReadOnlyCollection
 		{
-		public:
 			virtual void Clear() = 0;
 		};
 
-		template<struct T>
+		template<typename T>
         interface IGenericCollection : IGenericReadOnlyCollection<T>, ICollection
 		{
-		public:
 			virtual void Add(T item) = 0;
 			virtual void Remove(T item) = 0;
 		};
 
-		template<struct T>
+		template<typename T>
         interface IGenericIReadOnlyList : IGenericReadOnlyCollection<T>
 		{
 			virtual T operator[] (int32_t index) = 0;
 			virtual int32_t IndexOf(T item) = 0;
 		};
 
-        interface IList : public ICollection
+        interface IList : ICollection
 		{
-		public:
-			virtual void RemoveAt(Int32 index) = 0;
+			virtual void RemoveAt(int32_t index) = 0;
 		};
 
-		template<struct T>
+		template<typename T>
         interface IGenericList : IGenericIReadOnlyList<T>, IGenericCollection<T>, IList
 		{
-		public:
-			virtual void SetAt(Int32 index, T item) = 0;
-			virtual void Insert(Int32 index, T item) = 0;
+			virtual void SetAt(int32_t index, T item) = 0;
+			virtual void Insert(int32_t index, T item) = 0;
 		};
 
-		template<struct T>
+		template<typename T>
 		struct List : IGenericList<T>
 		{
 		private:
@@ -769,31 +751,27 @@ namespace System
 			typedef typename TVector::iterator TVectorIterator;
 			TVector storage;
 
-			struct ListEnumerator final : public IGenericEnumerator<T>
+			struct ListEnumerator final : IGenericEnumerator<T>
 			{
+			private:
 				TVectorIterator begin, end;
 
 			public:
-				explicit ListEnumerator(TVectorIterator begin, TVectorIterator end)
+				ListEnumerator(TVectorIterator begin, TVectorIterator end)
 				{
 					this->begin = begin;
 					this->end = end;
 				}
 
-				Boolean MoveNext() override
+				bool MoveNext() override
 				{
 					++begin;
-					return HasNext();
+					return begin != end;
 				}
 
 				T GetCurrent() override
 				{
 					return *begin;
-				}
-
-				Boolean HasNext() override
-				{
-					return begin != end;
 				}
 			};
 
@@ -890,8 +868,8 @@ namespace System
 			}
 		};
 
-		template<struct TKey, struct TValue>
-		struct KeyValuePair final : public Object
+		template<typename TKey, typename TValue>
+		struct KeyValuePair final : Object
 		{
 		private:
 			TKey Key;
@@ -903,21 +881,20 @@ namespace System
 			TKey GetKey() { return Key; }
 			TValue GetValue() { return Value; }
 
-			bool Equals(KeyValuePair<TKey, TValue>& obj) 
-            {
+			bool Equals(KeyValuePair<TKey, TValue> obj)
+			{
 				return Key == obj.Key && Value == obj.Value;
 			}
 		};
 
-		template<struct TKey, struct TValue>
-		struct Dictionary : public Object
+		template<typename TKey, typename TValue>
+		struct Dictionary : Object
 		{
 		private:
 
 			struct KeyHasher
 			{
-			public:
-				size_t operator()(const TKey& obj) const
+				size_t operator()(TKey obj)
 				{
 					return obj.GetHashCode();
 				}
@@ -927,13 +904,14 @@ namespace System
 			typedef typename Map::iterator TMapIterator;
 			typedef KeyValuePair<TKey, TValue> TKeyValuePair;
 
-			struct KeysCollection final : public Object
+			struct KeysCollection final : IGenericReadOnlyCollection<TKey>
 			{
 			private:
 				ref<Map> entries;
 
-				struct KeysCollectionEnumerator final : public IGenericEnumerator<TKey>
+				struct KeysCollectionEnumerator final : IGenericEnumerator<TKey>
 				{
+				private:
 					TMapIterator begin, end;
 
 				public:
@@ -943,13 +921,13 @@ namespace System
 						this->end = end;
 					}
 
-					Boolean MoveNext() override
+					bool MoveNext() override
 					{
 						++begin;
 						return begin != end;
 					}
 
-					TKey& GetCurrent() override
+					TKey GetCurrent() override
 					{
 						return begin->first;
 					}
@@ -957,36 +935,27 @@ namespace System
 
 			public:
 
-				KeysCollection(ref<Map> entries) : entries(entries) { }
-
-				KeysCollectionEnumerator begin() const
-				{
-					return KeyCollectionEnumerator(entries->begin(), entries->end());
-				}
-
-				KeysCollectionEnumerator end() const
-				{
-					return KeyCollectionEnumerator(entries->end(), entries->end());
-				}
-
-				Boolean Contains(const TKey& key) const
+				explicit KeysCollection(ref<Map> entries) : entries(entries) { }
+				
+				bool Contains(TKey key) const
 				{
 					return entries->find(key) != entries->end();
 				}
 
-				Int32 GetCount()
+				int32_t GetCount() override
 				{
 					return std::int32_t(entries->size());
 				}
 			};
 
-			struct ValuesCollection final : public Object
+			struct ValuesCollection final : IGenericReadOnlyCollection<TValue>
 			{
 			private:
 				ref<Map> entries;
 
-				struct ValuesCollectionEnumerator final : public IGenericEnumerator<TValue>
+				struct ValuesCollectionEnumerator final : IGenericEnumerator<TValue>
 				{
+				private:
 					TMapIterator begin, end;
 
 				public:
@@ -996,13 +965,13 @@ namespace System
 						this->end = end;
 					}
 
-					Boolean MoveNext() override
+					bool MoveNext() override
 					{
 						++begin;
 						return begin != end;
 					}
 
-					TValue& GetCurrent() override
+					TValue GetCurrent() override
 					{
 						return begin->second;
 					}
@@ -1013,30 +982,22 @@ namespace System
 				{
 				}
 
-				ValuesCollectionEnumerator begin() const
-				{
-					return ValuesCollectionEnumerator(entries->begin(), entries->end());
-				}
-
-				ValuesCollectionEnumerator end() const
-				{
-					return ValuesCollectionEnumerator(entries->end(), entries->end());
-				}
-
-				Boolean Contains(const TValue& key) const
+				bool Contains(const TValue& key) const
 				{
 					for (auto& i : *entries)
 					{
 						if (i.second == key) return true;
 					}
+
 					return false;
 				}
 
-				Int32 GetCount() const { return int32_t(entries->size()); }
+				int32_t GetCount() const { return int32_t(entries->size()); }
 			};
 
-			struct DictionaryEnumerator final : public IGenericEnumerator<KeyValuePair<TKey, TValue>>
+			struct DictionaryEnumerator final : IGenericEnumerator<KeyValuePair<TKey, TValue>>
 			{
+			private:
 				TMapIterator begin, end;
 
 			public:
@@ -1046,7 +1007,7 @@ namespace System
 					this->end = end;
 				}
 
-				Boolean MoveNext() override
+				bool MoveNext() override
 				{
 					++begin;
 					return begin != end;
@@ -1120,22 +1081,12 @@ namespace System
 				entries->erase(key);
 			}
 
-			virtual DictionaryEnumerator begin() const
-			{
-				return DictionaryEnumerator(entries->begin(), entries->end());
-			}
-
-			virtual DictionaryEnumerator end() const
-			{
-				return DictionaryEnumerator(entries->end(), entries->end());
-			}
-
-			virtual Boolean ContainsKey(const TKey& key) const
+			virtual bool ContainsKey(const TKey& key) const
 			{
 				return GetKeys()->Contains(key);
 			}
 
-			virtual Boolean TryGetValue(const TKey& key, TValue* out_value) const
+			virtual bool TryGetValue(const TKey& key, TValue* out_value) const
 			{
 				auto r = entries->find(key);
 				if (r == entries->end()) return false;
@@ -1143,12 +1094,12 @@ namespace System
 				return true;
 			}
 
-			virtual Int32 GetCount() const
+			virtual int32_t GetCount() const
 			{
-				return (std::int32_t)entries->size();
+				return int32_t(entries->size());
 			}
 
-			virtual Boolean Contains(const KeyValuePair<TKey, TValue>& pair) const
+			virtual bool Contains(const KeyValuePair<TKey, TValue>& pair) const
 			{
 				for (const auto& pairIt : *entries)
 				{
@@ -1164,39 +1115,36 @@ namespace System
 
 	namespace IO
 	{
-		BCLAPIOBJ enum struct SeekOrigin : std::int8_t
+		BCLAPIOBJ enum struct SeekOrigin : int8_t
 		{
 			Begin = 0,
 			Current = 1,
 			End = 2
 		};
-
-
-		BCLAPIOBJ struct IStream : Object
+		
+		BCLAPIOBJ interface IStream : Object
 		{
-		public:
-			virtual Boolean CanRead() = 0;
-			virtual Boolean CanWrite() = 0;
-			virtual Boolean CanSeek() = 0;
-			virtual Boolean CanTimeout() = 0;
-			virtual Int64 GetLength() = 0;
-			virtual Int64 GetPosition() = 0;
-			virtual Int64 GetTimeout() = 0;
-			virtual void SetTimeout(Int64 timeout) = 0;
-			virtual Int32 ReadByte() = 0;
-			virtual void WriteByte(Byte data) = 0;
-			virtual void Read(Byte* buffer, Int32 index, Int32 count) = 0;
-			virtual void Write(Byte* buffer, Int32 index, Int32 count) = 0;
-			virtual Int64 Seek(Int64 offset, SeekOrigin origin) = 0;
+			virtual bool CanRead() = 0;
+			virtual bool CanWrite() = 0;
+			virtual bool CanSeek() = 0;
+			virtual bool CanTimeout() = 0;
+			virtual int64_t GetLength() = 0;
+			virtual int64_t GetPosition() = 0;
+			virtual int64_t GetTimeout() = 0;
+			virtual void SetTimeout(int64_t timeout) = 0;
+			virtual int32_t ReadByte() = 0;
+			virtual void WriteByte(uint8_t data) = 0;
+			virtual void Read(Byte* buffer, int32_t index, int32_t count) = 0;
+			virtual void Write(Byte* buffer, int32_t index, int32_t count) = 0;
+			virtual Int64 Seek(int64_t offset, SeekOrigin origin) = 0;
 		};
 
-		BCLAPIOBJ struct ITextReader : Object
+		BCLAPIOBJ interface ITextReader : Object
 		{
-		public:
 			virtual void Close() = 0;
-			virtual Int32 Peek() = 0;
-			virtual Int32 Read() = 0;
-			virtual Int32 Read(char16_t* buffer, int32_t index, int32_t count) = 0;
+			virtual int32_t Peek() = 0;
+			virtual int32_t Read() = 0;
+			virtual int32_t Read(char16_t* buffer, int32_t index, int32_t count) = 0;
 			virtual String ReadToEnd() = 0;
 			virtual String ReadLine() = 0;
 		};
@@ -1208,7 +1156,6 @@ namespace System
 
 	BCLAPIOBJ struct Console
 	{
-	public:
 		static ref<IO::ITextReader> GetIn()
 		{
 			throw NotImplementedException();

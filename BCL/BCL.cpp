@@ -6,7 +6,7 @@ SByte::SByte() : value(0)
 {
 }
 
-System::SByte::SByte(sbyte value) : value(value)
+SByte::SByte(sbyte value) : value(value)
 {
 }
 
@@ -14,17 +14,35 @@ SByte::SByte(const SByte& obj) : value(obj.value)
 {
 }
 
-System::SByte::operator sbyte()
+SByte::operator sbyte() const
 {
-    return value;
+	return value;
 }
 
-uint32_t System::SByte::GetHashCode()
+uint32_t SByte::GetHashCode() const
 {
-    return value;
+	return value;
 }
 
-String System::SByte::ToString()
+
+Byte::Byte() : value(0)
 {
-    return u"";
+}
+
+Byte::Byte(byte value) : value(value)
+{
+}
+
+Byte::Byte(const Byte& obj) : value(obj.value)
+{
+}
+
+Byte::operator byte() const
+{
+	return value;
+}
+
+uint32_t Byte::GetHashCode() const
+{
+	return value;
 }
